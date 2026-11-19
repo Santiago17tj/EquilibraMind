@@ -578,3 +578,86 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
 .quiz-student-image span { position:absolute; bottom:10px; right:10px; padding:7px 10px; font-size:9px; color:#44664d; background:rgba(255,255,255,.87); border-radius:20px; }
 @media(max-width:800px){.photo-feature-section { grid-template-columns:1fr; gap:25px; padding:30px 0 70px; } .photo-feature-visual { max-width:600px; }}
 @media(max-width:570px){.photo-feature-copy h2 {font-size:37px;}.photo-feature-visual{min-height:0;}}
+
+
+/* v0.3.1 — movimiento editorial discreto (no estilo diapositiva). */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-on-scroll {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+    transition:
+      opacity 680ms ease-out,
+      transform 680ms cubic-bezier(.18, 1, .30, 1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal-on-scroll.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+  .hero-content {
+    animation: equilibra-text-entrance 780ms cubic-bezier(.18, 1, .30, 1) both;
+  }
+  .hero-generated-photo {
+    animation: equilibra-photo-entrance 950ms cubic-bezier(.18, 1, .30, 1) 90ms both;
+  }
+  .float-left { animation: equilibra-float-left 7s ease-in-out infinite; }
+  .float-right { animation: equilibra-float-right 7.5s ease-in-out infinite; }
+  @keyframes equilibra-text-entrance {
+    from { opacity: 0; transform: translate3d(0, 19px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+  }
+  @keyframes equilibra-photo-entrance {
+    from { opacity: 0; transform: scale(1.035); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes equilibra-float-left {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-8px) rotate(-4deg); }
+  }
+  @keyframes equilibra-float-right {
+    0%, 100% { transform: translateY(0) rotate(4deg); }
+    50% { transform: translateY(8px) rotate(4deg); }
+  }
+  @media (hover: hover) {
+    .feature-card, .specialist-card, .plan-card {
+      transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+    }
+    .feature-card:hover, .specialist-card:hover, .plan-card:hover {
+      transform: translateY(-4px);
+      border-color: #bfd6c3;
+      box-shadow: 0 18px 40px rgba(47, 78, 57, .075);
+    }
+  }
+}
+/* Mantener contenido inmediatamente accesible cuando se solicita reducir movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-on-scroll { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .hero-content, .hero-generated-photo, .floating-card { animation: none !important; }
+}
+
+/* Mejor relación fotografía/texto en la sección corporativa. */
+.business-banner { grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr); gap: 30px; }
+.business-banner .business-art-photo {
+  width: min(100%, 380px);
+  height: auto;
+  aspect-ratio: 4 / 3;
+  justify-self: end;
+  border-radius: 24px;
+  background: #c5dbc8;
+}
+.business-banner .business-art-photo > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 24px;
+}
+.business-banner .business-heart { z-index: 2; }
+@media (max-width: 800px) {
+  .business-banner { grid-template-columns: minmax(0, 1fr); }
+  .business-banner .business-art-photo { justify-self: center; transform: none; max-width: 460px; }
+}
+@media (max-width: 570px) {
+  .business-banner .business-art-photo { display: block; width: 100%; margin-top: 16px; }
+}
