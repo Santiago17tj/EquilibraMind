@@ -76,3 +76,23 @@
 - Se publican dos retratos independientes de alta calidad con URL nuevas: `laura-v06.avif` y `daniela-v06.avif`, para evitar que el navegador reutilice imágenes antiguas.
 - En **Probar roles → Verificar demo** se comprueba carga y dimensiones de los tres retratos, y que sus miniaturas de 20 × 20 píxeles no sean iguales o casi iguales. Esto no certifica identidad ni sustituye revisión humana.
 - **Pendiente de prueba manual:** confirmar encuadres y estética en Edge de escritorio y móvil, hacer clic en los recorridos, comprobar persistencia en IndexedDB y evaluar accesibilidad real. La compilación no equivale a superar esas pruebas.
+
+## Automatización incorporada — QA v0.6
+
+La suite de Playwright ejecuta el build de producción en Chromium y usa un contexto aislado por caso. Resultado final del 19 de noviembre de 2026: **59/59 pruebas E2E y 3/3 unitarias aprobadas**, con `npm run typecheck` y `npm run build` correctos.
+
+| Cobertura automatizada | Archivo |
+|---|---|
+| Navegación, menú móvil, Escape y accesos rápidos | `e2e/navigation.spec.ts` |
+| Cuestionario, puntuaciones, reinicio y no persistencia | `e2e/quiz.spec.ts` |
+| Recorridos guiados personal y empresarial | `e2e/guided.spec.ts` |
+| Retratos, filtros, ficha, reserva y diagnóstico | `e2e/professionals.spec.ts` |
+| Horarios ocupados, alta, cambio y cancelación | `e2e/booking.spec.ts` |
+| Persistencia y aislamiento de IndexedDB | `e2e/persistence.spec.ts` |
+| Coherencia paciente, psicólogo y administrador | `e2e/roles.spec.ts` |
+| Restablecimiento de la demo | `e2e/reset.spec.ts` |
+| Ejercicio de respiración y movimiento reducido | `e2e/breathing.spec.ts` |
+| Accesibilidad básica y navegación con teclado | `e2e/accessibility.spec.ts` |
+| 375 / 768 / 1440 px y capturas | `e2e/responsive.spec.ts` |
+
+Las capturas están en `docs/capturas/` y el informe completo en [QA_V06_RESULTADOS.md](QA_V06_RESULTADOS.md). Siguen siendo manuales: dispositivos reales, lectores de pantalla, contraste WCAG con axe, Firefox/WebKit y revisión estética humana.
