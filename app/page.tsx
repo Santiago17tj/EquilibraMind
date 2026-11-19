@@ -130,6 +130,39 @@ export default function Home() {
   const [companyPreview, setCompanyPreview] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
+  // Transiciones discretas al aparecer en pantalla. No ocultan contenido si JS está desactivado.
+  useEffect(() => {
+    if (typeof window.IntersectionObserver === "undefined" ||
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const container = document.querySelector(".site-shell main");
+    if (!container) return;
+    const selector = [
+      ".value-bar > div", ".section-head", ".feature-card", ".wellbeing-art",
+      ".split-copy", ".photo-feature-copy", ".photo-feature-visual",
+      ".business-banner", ".closing-cta", ".subpage-head",
+      ".specialist-card", ".profile-detail", ".booking-section",
+      ".quiz-panel", ".quiz-aside", ".plan-card",
+      ".company-benefits > div", ".company-callout", ".dashboard-preview",
+      ".role-selector", ".role-dashboard", ".role-stat", ".role-panel",
+      ".greeting-card", ".space-card"
+    ].join(", ");
+    const items = Array.from(container.querySelectorAll<HTMLElement>(selector))
+      .filter((element) => !element.classList.contains("is-revealed"));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-revealed");
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -24px 0px" });
+    items.forEach((element, index) => {
+      element.classList.add("reveal-on-scroll");
+      element.style.setProperty("--reveal-delay", `${(index % 3) * 85}ms`);
+      observer.observe(element);
+    });
+    return () => observer.disconnect();
+  }, [view, profileFilter, expandedProfileId, companyPreview, demoRole, quizFinished]);
+
   useEffect(() => {
     try {
       const previous = window.localStorage.getItem("equilibramind-demo-booking-v1");
@@ -239,7 +272,7 @@ export default function Home() {
             <div className="hero-trust"><div className="trust-avatars"><span>✦</span><span>♡</span><span>☼</span></div><span>Una experiencia cálida, a tu ritmo y sin juicios</span></div>
           </div>
           <div className="hero-visual" aria-label="Imagen ilustrativa de una pausa para el bienestar" role="img">
-            <img className="hero-generated-photo" src="/images/hero.avif" alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
+            <img className="hero-generated-photo" src="/images/hero.avif?v=2" alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
             <div className="visual-sun"/>
             <div className="visual-orbit orbit-one"/>
             <div className="visual-orbit orbit-two"/>
@@ -283,9 +316,9 @@ export default function Home() {
             <p>Conoce cómo sería recibir acompañamiento virtual desde un lugar cómodo para ti. Esta escena es una ilustración generada con IA; las consultas reales no están disponibles todavía.</p>
             <button className="button button-primary" onClick={() => navigate("profesionales")}>Conocer opciones de atención <ArrowRight size={17}/></button>
           </div>
-          <figure className="photo-feature-visual"><img src="/images/teleconsulta.avif" loading="lazy" alt="Escena ilustrativa generada con IA de una videoconsulta psicológica de demostración"/><figcaption>Imagen generada con IA · No representa una consulta real</figcaption></figure>
+          <figure className="photo-feature-visual"><img src="/images/teleconsulta.avif?v=2" loading="lazy" alt="Escena ilustrativa generada con IA de una videoconsulta psicológica de demostración"/><figcaption>Imagen generada con IA · No representa una consulta real</figcaption></figure>
         </section>
-        <section className="section-block section-width business-banner"><div><div className="eyebrow">BIENESTAR QUE TAMBIÉN SE COMPARTE</div><h2>Equipos más humanos. <em>Entornos más saludables.</em></h2><p>Conoce cómo EquilibraMind podría ayudar a las empresas a promover una cultura de cuidado y prevención del agotamiento laboral.</p><button className="button button-dark" onClick={() => navigate("empresas")}>EquilibraMind para empresas <ArrowRight size={18}/></button></div><div className="business-art business-art-photo"><img src="/images/empresas.avif" alt="Grupo ilustrativo de personas en un taller de bienestar, imagen generada con IA" onError={(event) => { event.currentTarget.style.display = "none"; }} /><div className="business-heart"><Heart size={32} fill="currentColor" strokeWidth={1}/></div></div></section>
+        <section className="section-block section-width business-banner"><div><div className="eyebrow">BIENESTAR QUE TAMBIÉN SE COMPARTE</div><h2>Equipos más humanos. <em>Entornos más saludables.</em></h2><p>Conoce cómo EquilibraMind podría ayudar a las empresas a promover una cultura de cuidado y prevención del agotamiento laboral.</p><button className="button button-dark" onClick={() => navigate("empresas")}>EquilibraMind para empresas <ArrowRight size={18}/></button></div><div className="business-art business-art-photo"><img src="/images/empresas.avif?v=2" alt="Grupo ilustrativo de personas en un taller de bienestar, imagen generada con IA" onError={(event) => { event.currentTarget.style.display = "none"; }} /><div className="business-heart"><Heart size={32} fill="currentColor" strokeWidth={1}/></div></div></section>
         <section className="closing-cta section-width"><div className="eyebrow">CADA PASO CUENTA</div><h2>Tu bienestar también <em>merece espacio.</em></h2><p>Comienza con unos minutos para descubrir cómo te has sentido.</p><button className="button button-primary button-large" onClick={() => navigate("chequeo")}>Comenzar mi chequeo <ArrowRight size={18}/></button></section>
       </>}
 
@@ -301,7 +334,7 @@ export default function Home() {
               <div className="quiz-actions"><button className="button button-ghost" onClick={() => setQuizStep((s) => Math.max(s - 1, 0))} disabled={quizStep === 0}><ArrowLeft size={17}/> Anterior</button><button className="button button-primary" disabled={answers[quizStep] === -1} onClick={() => quizStep === questions.length - 1 ? setQuizFinished(true) : setQuizStep((s) => s + 1)}>{quizStep === questions.length - 1 ? "Ver mi reflexión" : "Continuar"} <ArrowRight size={17}/></button></div>
             </> : <div className="quiz-result"><span className="result-icon"><Leaf size={34}/></span><div className="eyebrow">TU REFLEXIÓN PERSONAL</div><h2>{category}</h2><p>{guidance}</p><div className="result-hint"><Info size={19}/><span>Este cuestionario es una actividad educativa creada para la demostración, sin validación psicométrica. No mide ni diagnostica burnout ni sustituye la evaluación profesional.</span></div><div className="result-buttons"><button className="button button-primary" onClick={() => navigate("profesionales")}>Explorar apoyo <ArrowRight size={17}/></button><button className="button button-outline" onClick={resetQuiz}>Volver a empezar</button></div></div>}
           </div>
-          <aside className="quiz-aside"><div className="quiz-student-image"><img src="/images/estudiantes.avif" alt="Estudiante ficticio tomándose una pausa, imagen generada con IA" loading="lazy"/><span>Escena ilustrativa · IA</span></div><span className="aside-illustration"><MoonStar size={36}/></span><h3>Un momento solo para ti.</h3><p>Tómate tu tiempo. Tus respuestas no se envían a ningún servidor ni se guardan en tu perfil.</p><div className="aside-divider"/><div className="aside-item"><LockKeyhole size={18}/> Sin crear una cuenta</div><div className="aside-item"><Clock3 size={18}/> Aproximadamente 2 minutos</div><div className="aside-item"><Heart size={18}/> Sin juicios ni etiquetas</div></aside>
+          <aside className="quiz-aside"><div className="quiz-student-image"><img src="/images/estudiantes.avif?v=2" alt="Estudiante ficticio tomándose una pausa, imagen generada con IA" loading="lazy"/><span>Escena ilustrativa · IA</span></div><span className="aside-illustration"><MoonStar size={36}/></span><h3>Un momento solo para ti.</h3><p>Tómate tu tiempo. Tus respuestas no se envían a ningún servidor ni se guardan en tu perfil.</p><div className="aside-divider"/><div className="aside-item"><LockKeyhole size={18}/> Sin crear una cuenta</div><div className="aside-item"><Clock3 size={18}/> Aproximadamente 2 minutos</div><div className="aside-item"><Heart size={18}/> Sin juicios ni etiquetas</div></aside>
         </div>
       </section>}
 
@@ -318,7 +351,7 @@ export default function Home() {
           {visibleSpecialists.map((person) => <article className="specialist-card" key={person.id}>
             <div className={"specialist-photo " + person.color} aria-label={"Retrato ilustrativo del personaje ficticio " + person.name}>
               <div className="portrait-orbit"/><div className="avatar-bust"><span>{person.initials}</span></div>
-              <img className="specialist-generated-photo" src={"/images/" + (person.id === 1 ? "laura" : person.id === 2 ? "daniela" : "julian") + ".avif"} alt={"Retrato generado con IA de " + person.name + ", personaje ficticio"} onError={(event) => {event.currentTarget.style.display = "none";}} />
+              <img className="specialist-generated-photo" src={"/images/" + (person.id === 1 ? "laura" : person.id === 2 ? "daniela" : "julian") + ".avif?v=2"} alt={"Retrato generado con IA de " + person.name + ", personaje ficticio"} onError={(event) => {event.currentTarget.style.display = "none";}} />
               <div className="profile-label">PERSONAJE FICTICIO · IA</div>
             </div>
             <div className="specialist-info">
