@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { RoleDashboard } from "./components/RoleDashboard";
 import { BreathingExercise } from "./components/BreathingExercise";
+import { GuidedExperience, demoFlows, type GuideAudience } from "./components/GuidedExperience";
 import {
   specialists, loadDemoSnapshot, findActiveBooking, saveDemoBooking,
   cancelDemoBooking, resetDemoDatabase, setDemoSetting,
@@ -95,6 +96,8 @@ export default function Home() {
   const [view, setView] = useState<Section>("inicio");
   const [demoRole, setDemoRole] = useState<DemoRole>("paciente");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [guideAudience, setGuideAudience] = useState<GuideAudience | null>(null);
+  const [guideStep, setGuideStep] = useState(0);
   const [answers, setAnswers] = useState<number[]>(Array(questions.length).fill(-1));
   const [quizStep, setQuizStep] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
@@ -113,6 +116,16 @@ export default function Home() {
   const [bookedNotice, setBookedNotice] = useState(false);
   const [companyPreview, setCompanyPreview] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setMobileOpen(false);
+      setGuideAudience(null);
+    };
+    window.addEventListener("keydown", onEscape);
+    return () => window.removeEventListener("keydown", onEscape);
+  }, []);
 
   // Transiciones discretas al aparecer en pantalla. No ocultan contenido si JS está desactivado.
   useEffect(() => {
@@ -214,7 +227,11 @@ export default function Home() {
     setView(v);
     setMobileOpen(false);
     setBookedNotice(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({ top: 0, behavior: reduced ? "instant" : "smooth" });
+    window.requestAnimationFrame(() => {
+      document.getElementById("contenido")?.focus({ preventScroll: true });
+    });
   };
   const booking = demoSnapshot ? findActiveBooking(demoSnapshot, demoPatientId) : null;
   const currentDemoPatient = demoSnapshot?.patients.find((person) => person.id === demoPatientId) ?? null;
@@ -293,25 +310,43 @@ export default function Home() {
     }
   };
 
+  const goGuideStep = (audience: GuideAudience, step: number) => {
+    const flow = demoFlows[audience];
+    const next = flow[step];
+    if (!next) return;
+    setGuideAudience(audience);
+    setGuideStep(step);
+    if (next.focus === "booking") setJumpToBooking(true);
+    if (next.focus === "metrics") setCompanyPreview(true);
+    if (next.section === "demo") selectDemoRole(audience === "empresas" ? "administrador" : "paciente");
+    navigate(next.section);
+    if (next.focus === "metrics") {
+      window.setTimeout(() => document.getElementById("company-dashboard")?.scrollIntoView({ behavior: "smooth", block: "start" }), 180);
+    }
+  };
+  const startGuide = (audience: GuideAudience) => goGuideStep(audience, 0);
+
   return <div className="site-shell">
+    <a className="skip-to-content" href="#contenido">Saltar al contenido principal</a>
     <div className="top-strip"><Leaf size={13}/> Un espacio para cuidar de ti, a tu ritmo <span>·</span> Plataforma de demostración</div>
     <header className="header">
       <div className="header-inner">
         <Logo onClick={() => navigate("inicio")} />
-        <nav className={mobileOpen ? "nav nav-open" : "nav"} aria-label="Navegación principal">
-          {nav.map((entry) => <button key={entry.id} className={view === entry.id ? "nav-link active" : "nav-link"} onClick={() => navigate(entry.id)}>{entry.label}</button>)}
+        <nav id="nav-principal" className={mobileOpen ? "nav nav-open" : "nav"} aria-label="Navegación principal">
+          {nav.map((entry) => <button key={entry.id} className={view === entry.id ? "nav-link active" : "nav-link"} aria-current={view === entry.id ? "page" : undefined} onClick={() => navigate(entry.id)}>{entry.label}</button>)}
           <button className="mobile-space-link" onClick={() => navigate("espacio")}>Mi espacio</button>
           <button className="mobile-space-link" onClick={() => navigate("demo")}>Probar roles</button>
+          <button className="mobile-space-link" onClick={() => startGuide("personas")}>Recorrido guiado</button>
         </nav>
         <div className="header-actions">
-          <button className="button button-ghost desktop-space" onClick={() => navigate("demo")}><UserRound size={16}/> Probar roles</button>
+          <button className="button button-ghost desktop-space" onClick={() => startGuide("personas")}><PlayCircle size={17}/> Ver recorrido</button>
           <button className="button button-primary header-cta" onClick={() => navigate("chequeo")}>Empezar <ArrowUpRight size={16}/></button>
-          <button className="menu-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"} aria-expanded={mobileOpen}>{mobileOpen ? <X /> : <Menu />}</button>
+          <button className="menu-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-controls="nav-principal" aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"} aria-expanded={mobileOpen}>{mobileOpen ? <X /> : <Menu />}</button>
         </div>
       </div>
     </header>
 
-    <main id="contenido" key={view} className="page-transition">
+    <main id="contenido" key={view} tabIndex={-1} className="page-transition">
       {view === "inicio" && <>
         <section className="hero section-width">
           <div className="hero-content">
@@ -322,6 +357,7 @@ export default function Home() {
               <button className="button button-primary button-large" onClick={() => navigate("chequeo")}>Conoce cómo te sientes <ArrowRight size={18}/></button>
               <button className="button button-outline button-large" onClick={() => navigate("profesionales")}>Explorar acompañamiento</button>
             </div>
+            <div className="hero-guide-entry"><button type="button" onClick={() => startGuide("personas")}><PlayCircle size={18}/> Descubre cómo funciona, paso a paso <ArrowRight size={17}/></button><span>Demostración guiada con datos ficticios</span></div>
             <div className="hero-trust"><div className="trust-avatars"><span>✦</span><span>♡</span><span>☼</span></div><span>Una experiencia cálida, a tu ritmo y sin juicios</span></div>
           </div>
           <div className="hero-visual" aria-label="Imagen ilustrativa de una pausa para el bienestar" role="img">
@@ -381,7 +417,8 @@ export default function Home() {
           </div>
           <figure className="photo-feature-visual"><img src="/images/teleconsulta.avif?v=2" loading="lazy" alt="Escena ilustrativa generada con IA de una videoconsulta psicológica de demostración"/><figcaption>Imagen generada con IA · No representa una consulta real</figcaption></figure>
         </section>
-        <section className="section-block section-width business-banner"><div><div className="eyebrow">BIENESTAR QUE TAMBIÉN SE COMPARTE</div><h2>Equipos más humanos. <em>Entornos más saludables.</em></h2><p>Conoce cómo EquilibraMind podría ayudar a las empresas a promover una cultura de cuidado y prevención del agotamiento laboral.</p><button className="button button-dark" onClick={() => navigate("empresas")}>EquilibraMind para empresas <ArrowRight size={18}/></button></div><div className="business-art business-art-photo"><img src="/images/empresas.avif?v=2" alt="Grupo ilustrativo de personas en un taller de bienestar, imagen generada con IA" onError={(event) => { event.currentTarget.style.display = "none"; }} /><div className="business-heart"><Heart size={32} fill="currentColor" strokeWidth={1}/></div></div></section>
+        <section className="section-block section-width business-banner"><div><div className="eyebrow">BIENESTAR QUE TAMBIÉN SE COMPARTE</div><h2>Equipos más humanos. <em>Entornos más saludables.</em></h2><p>Conoce cómo EquilibraMind podría ayudar a las empresas a promover una cultura de cuidado y prevención del agotamiento laboral.</p><button className="button button-dark" onClick={() => navigate("empresas")}>EquilibraMind para empresas <ArrowRight size={18}/></button>
+          <button className="business-guide-link" onClick={() => startGuide("empresas")}><PlayCircle size={17}/> Ver recorrido empresarial</button></div><div className="business-art business-art-photo"><img src="/images/empresas.avif?v=2" alt="Grupo ilustrativo de personas en un taller de bienestar, imagen generada con IA" onError={(event) => { event.currentTarget.style.display = "none"; }} /><div className="business-heart"><Heart size={32} fill="currentColor" strokeWidth={1}/></div></div></section>
         <section className="closing-cta section-width"><div className="eyebrow">CADA PASO CUENTA</div><h2>Tu bienestar también <em>merece espacio.</em></h2><p>Comienza con unos minutos para descubrir cómo te has sentido.</p><button className="button button-primary button-large" onClick={() => navigate("chequeo")}>Comenzar mi chequeo <ArrowRight size={18}/></button></section>
       </>}
 
@@ -391,11 +428,11 @@ export default function Home() {
           <div className="quiz-panel">
             {!quizFinished ? <>
               <div className="quiz-top"><span>PREGUNTA {quizStep + 1} DE {questions.length}</span><span>{Math.round((quizStep / questions.length) * 100)}% completado</span></div>
-              <div className="progress-track"><div style={{ width: String((quizStep / questions.length) * 100) + "%" }}/></div>
-              <h2>{questions[quizStep]}</h2>
-              <div className="answer-list">{responseOptions.map((option, index) => <button key={option} className={answers[quizStep] === index ? "answer-option selected" : "answer-option"} onClick={() => setAnswers((all) => all.map((a, i) => i === quizStep ? index : a))}><span className="radio-dot"/>{option}</button>)}</div>
+              <div className="progress-track" role="progressbar" aria-label="Progreso del chequeo" aria-valuenow={quizStep} aria-valuemin={0} aria-valuemax={questions.length}><div style={{ width: String((quizStep / questions.length) * 100) + "%" }}/></div>
+              <h2 aria-live="polite">{questions[quizStep]}</h2>
+              <div className="answer-list">{responseOptions.map((option, index) => <button key={option} type="button" aria-pressed={answers[quizStep] === index} className={answers[quizStep] === index ? "answer-option selected" : "answer-option"} onClick={() => setAnswers((all) => all.map((a, i) => i === quizStep ? index : a))}><span className="radio-dot"/>{option}</button>)}</div>
               <div className="quiz-actions"><button className="button button-ghost" onClick={() => setQuizStep((s) => Math.max(s - 1, 0))} disabled={quizStep === 0}><ArrowLeft size={17}/> Anterior</button><button className="button button-primary" disabled={answers[quizStep] === -1} onClick={() => quizStep === questions.length - 1 ? setQuizFinished(true) : setQuizStep((s) => s + 1)}>{quizStep === questions.length - 1 ? "Ver mi reflexión" : "Continuar"} <ArrowRight size={17}/></button></div>
-            </> : <div className="quiz-result"><span className="result-icon"><Leaf size={34}/></span><div className="eyebrow">TU REFLEXIÓN PERSONAL</div><h2>{category}</h2><p>{guidance}</p><div className="result-hint"><Info size={19}/><span>Este cuestionario es una actividad educativa creada para la demostración, sin validación psicométrica. No mide ni diagnostica burnout ni sustituye la evaluación profesional.</span></div><div className="result-buttons"><button className="button button-primary" onClick={() => navigate("profesionales")}>Explorar apoyo <ArrowRight size={17}/></button><button className="button button-outline" onClick={resetQuiz}>Volver a empezar</button></div></div>}
+            </> : <div className="quiz-result" role="status"><span className="result-icon"><Leaf size={34}/></span><div className="eyebrow">TU REFLEXIÓN PERSONAL</div><h2>{category}</h2><p>{guidance}</p><div className="result-hint"><Info size={19}/><span>Este cuestionario es una actividad educativa creada para la demostración, sin validación psicométrica. No mide ni diagnostica burnout ni sustituye la evaluación profesional.</span></div><div className="result-buttons"><button className="button button-primary" onClick={() => navigate("profesionales")}>Conocer profesionales <ArrowRight size={17}/></button><button className="button button-outline" onClick={() => navigate("planes")}>Ver modalidades y precios</button><button className="button button-ghost" onClick={resetQuiz}>Repetir ejercicio</button></div></div>}
           </div>
           <aside className="quiz-aside"><div className="quiz-student-image"><img src="/images/estudiantes.avif?v=2" alt="Estudiante ficticio tomándose una pausa, imagen generada con IA" loading="lazy"/><span>Escena ilustrativa · IA</span></div><span className="aside-illustration"><MoonStar size={36}/></span><h3>Un momento solo para ti.</h3><p>Tómate tu tiempo. Tus respuestas no se envían a ningún servidor ni se guardan en tu perfil.</p><div className="aside-divider"/><div className="aside-item"><LockKeyhole size={18}/> Sin crear una cuenta</div><div className="aside-item"><Clock3 size={18}/> Aproximadamente 2 minutos</div><div className="aside-item"><Heart size={18}/> Sin juicios ni etiquetas</div></aside>
         </div>
@@ -492,9 +529,9 @@ export default function Home() {
       </section>}
 
       {view === "empresas" && <section className="inner-section section-width">
-        <div className="subpage-head"><div className="eyebrow">EQUILIBRAMIND PARA EMPRESAS</div><h1>El bienestar de tu equipo <em>también es parte del éxito.</em></h1><p>Una propuesta para promover la prevención del agotamiento laboral, la escucha y una cultura de cuidado dentro de las organizaciones.</p><button className="button button-primary" onClick={() => setCompanyPreview(!companyPreview)}>{companyPreview ? "Ocultar panel" : "Explorar panel de empresa"} <BarChart3 size={17}/></button></div>
+        <div className="subpage-head"><div className="eyebrow">EQUILIBRAMIND PARA EMPRESAS</div><h1>El bienestar de tu equipo <em>también es parte del éxito.</em></h1><p>Una propuesta para promover la prevención del agotamiento laboral, la escucha y una cultura de cuidado dentro de las organizaciones.</p><div className="company-primary-actions"><button className="button button-primary" aria-expanded={companyPreview} aria-controls="company-dashboard" onClick={() => setCompanyPreview(!companyPreview)}>{companyPreview ? "Ocultar panel" : "Explorar panel de empresa"} <BarChart3 size={17}/></button><button className="button button-outline" onClick={() => startGuide("empresas")}><PlayCircle size={17}/> Presentar propuesta B2B</button></div></div>
         <div className="company-benefits"><div><UsersRound size={27}/><h3>Cultura de cuidado</h3><p>Recursos de psicoeducación para conversaciones más saludables.</p></div><div><Activity size={27}/><h3>Bienestar colectivo</h3><p>Indicadores de ejemplo para identificar tendencias de participación.</p></div><div><ShieldCheck size={27}/><h3>Privacidad por diseño</h3><p>Un enfoque de reportes agregados, sin respuestas clínicas individuales.</p></div></div>
-        {companyPreview ? <div className="dashboard-preview"><div className="dashboard-header"><div><div className="eyebrow">PANEL EMPRESARIAL · SIMULACIÓN</div><h2>Resumen de bienestar</h2><span>Empresa ficticia: Horizonte Creativo S. A. S.</span></div><span className="demo-tag">DATOS SIMULADOS</span></div><div className="metric-grid"><div><span>Participación</span><strong>78%</strong><small>De colaboradores ficticios</small></div><div><span>Recursos explorados</span><strong>246</strong><small>Interacciones de ejemplo</small></div><div><span>Satisfacción estimada</span><strong>4,7/5</strong><small>Valor ficticio</small></div></div><div className="bar-visual"><h3>Interés por recursos de bienestar · Datos ficticios</h3>{[{l:"Gestión del estrés",w:83},{l:"Descanso y desconexión",w:65},{l:"Organización del tiempo",w:48}].map((item) => <div className="bar-item" key={item.l}><span>{item.l}</span><div><i style={{ width: String(item.w) + "%" }}/></div></div>)}</div><p className="dashboard-disclaimer"><Info size={16}/> Los indicadores no provienen de personas reales; ilustran un modelo de negocio potencial.</p></div> : <div className="company-callout"><span><BarChart3 size={40}/></span><div><h2>Una mirada humana a los datos.</h2><p>Abre el panel de demostración y descubre cómo podrían visualizarse indicadores agregados de un programa de bienestar.</p></div><button className="button button-dark" onClick={() => setCompanyPreview(true)}>Ver demostración <ArrowRight size={17}/></button></div>}
+        {companyPreview ? <div className="dashboard-preview" id="company-dashboard"><div className="dashboard-header"><div><div className="eyebrow">PANEL EMPRESARIAL · SIMULACIÓN</div><h2>Resumen de bienestar</h2><span>Empresa ficticia: Horizonte Creativo S. A. S.</span></div><span className="demo-tag">DATOS SIMULADOS</span></div><div className="metric-grid"><div><span>Participación</span><strong>78%</strong><small>De colaboradores ficticios</small></div><div><span>Recursos explorados</span><strong>246</strong><small>Interacciones de ejemplo</small></div><div><span>Satisfacción estimada</span><strong>4,7/5</strong><small>Valor ficticio</small></div></div><div className="bar-visual"><h3>Interés por recursos de bienestar · Datos ficticios</h3>{[{l:"Gestión del estrés",w:83},{l:"Descanso y desconexión",w:65},{l:"Organización del tiempo",w:48}].map((item) => <div className="bar-item" key={item.l}><span>{item.l}</span><div><i style={{ width: String(item.w) + "%" }}/></div></div>)}</div><p className="dashboard-disclaimer"><Info size={16}/> Los indicadores no provienen de personas reales; ilustran un modelo de negocio potencial.</p></div> : <div className="company-callout"><span><BarChart3 size={40}/></span><div><h2>Una mirada humana a los datos.</h2><p>Abre el panel de demostración y descubre cómo podrían visualizarse indicadores agregados de un programa de bienestar.</p></div><button className="button button-dark" onClick={() => setCompanyPreview(true)}>Ver demostración <ArrowRight size={17}/></button></div>}
         <div className="company-bottom"><h2>Una propuesta a la medida <em>de cada equipo.</em></h2><p>Explora nuestro modelo corporativo ficticio y cómo podría evolucionar a un servicio contratado por organización.</p><button className="button button-outline" onClick={() => navigate("planes")}>Conocer planes <ArrowRight size={17}/></button></div>
       </section>}
 
@@ -544,6 +581,13 @@ export default function Home() {
     </main>
     {dbError && <div className="local-data-error" role="alert"><Info size={18}/><span>{dbError}</span><button type="button" onClick={() => setDbError("")}>Cerrar</button></div>}
     <DemoNote compact />
+    {!guideAudience && <nav className="mobile-quick-nav" aria-label="Accesos rápidos">
+      <button type="button" aria-current={view === "inicio" ? "page" : undefined} onClick={() => navigate("inicio")}><Leaf size={20}/> Inicio</button>
+      <button type="button" aria-current={view === "profesionales" ? "page" : undefined} onClick={() => navigate("profesionales")}><CalendarDays size={20}/> Citas</button>
+      <button type="button" onClick={() => startGuide("personas")}><PlayCircle size={20}/> Recorrido</button>
+    </nav>}
+    {guideAudience && <GuidedExperience audience={guideAudience} step={guideStep}
+      onStep={(step) => goGuideStep(guideAudience, step)} onClose={() => setGuideAudience(null)}/>}
     <BrandFooter navigate={navigate} />
   </div>;
 }

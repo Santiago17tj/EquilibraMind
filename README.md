@@ -4,7 +4,7 @@
 
 Prototipo académico y demostración de negocio de una plataforma de bienestar psicológico, psicoeducación y prevención del agotamiento laboral (*burnout*). Inspirado en el trabajo de Psicología Organizacional de la UDI (2026).
 
-## Estado: versión 0.4 — base de datos local y experiencia interactiva
+## Estado: versión 0.5 — experiencia para personas y empresas, accesibilidad y exposición
 
 Proyecto web funcional de demostración, con diseño **wellbeing premium** (verde salvia, marfil, grafito) y contenido en español.
 
@@ -21,6 +21,9 @@ Proyecto web funcional de demostración, con diseño **wellbeing premium** (verd
 - **Tres vistas conectadas a los mismos datos locales:** paciente (cambiar entre tres personajes), psicólogo (agenda por profesional) y administrador (indicadores calculados con reservas ficticias). Selector público **sin autenticación ni permisos reales**.
 - **Fotografías generadas con IA:** siete imágenes AVIF optimizadas para portada, perfiles, teleconsulta, empresas y bienestar estudiantil, claramente señaladas como ilustrativas o ficticias.
 - **Ejercicio de respiración interactivo:** una pausa de un minuto con control de inicio, pausa y reinicio; movimientos discretos y respeto por movimiento reducido.
+- **Recorrido guiado dual:** guía de seis pasos para personas y cinco pasos para empresas, con navegación real entre el chequeo, perfiles, reservas, planes y paneles, sin automatizar decisiones ni pagos.
+- **Accesibilidad y móvil:** menú que se cierra con Escape, salto al contenido con teclado, barra de accesos rápidos en celular, encabezado visible, estados y controles accesibles y transiciones suaves.
+- **Flujo del chequeo a servicios:** resultados educativos con accesos directos a profesionales y tarifas.
 - **Restablecer demo:** un botón repone pacientes, citas, planes y preferencias ficticios en el navegador antes de cada exposición.
 - **Modo seguro para presentar:** avisos permanentes sobre la naturaleza simulada de los contenidos.
 
@@ -39,11 +42,13 @@ app/
   icon.svg        # Favicon
   components/RoleDashboard.tsx  # Paneles con datos de IndexedDB
   components/BreathingExercise.tsx  # Pausa guiada de un minuto
+  components/GuidedExperience.tsx  # Recorridos públicos para personas y empresas
   lib/demo-db.ts  # Esquema y operaciones locales IndexedDB
 package.json      # Dependencias y scripts
 tsconfig.json     # TypeScript
 netlify.toml      # Configuración de build
 public/images/   # 7 fotografías AVIF generadas con IA
+docs/GUIA_EXPOSICION.md  # Guion de presentación y pruebas de aceptación
 ```
 
 ## Ejecutar en local
@@ -81,6 +86,10 @@ Importar el repositorio desde Vercel y dejar la configuración detectada de Next
 
 ## Guion para mostrar la experiencia
 
+Guía detallada, recorridos personal y empresarial y lista de verificación: [docs/GUIA_EXPOSICION.md](docs/GUIA_EXPOSICION.md).
+
+Puedes iniciar el recorrido personal en **Inicio → Descubre cómo funciona, paso a paso** o pulsar **Ver recorrido** en la cabecera. El recorrido B2B inicia desde **Para empresas → Presentar propuesta B2B**.
+
 1. Abrir Inicio y explicar la propuesta de valor.
 2. Pulsar **Conoce cómo te sientes** para completar el chequeo orientativo.
 3. Ir a **Profesionales** y seleccionar un perfil ficticio.
@@ -102,7 +111,7 @@ Para convertirlo en un servicio comercial real en Colombia: validar habilitació
 
 ## Siguiente fase
 
-- **0.5:** terminar modularización y pruebas funcionales, mejorar accesibilidad y preparar la exposición con recorridos y escenarios de negocio. Mantener IndexedDB hasta decidir si se inicia una fase comercial.
+- **0.6:** revisión manual con usuarios en computador y móvil, corrección de defectos detectados, modularización restante y pruebas de aceptación reproducibles. Mantener IndexedDB mientras siga siendo una demostración.
 - **Fase comercial futura:** profesionales habilitados, autenticación segura y datos protegidos (Supabase), disponibilidad y cancelaciones reales, cobros integrados, y protocolos clínicos y empresariales bajo asesoría especializada.
 
 > No publicar secretos ni credenciales en este repositorio público.
@@ -117,3 +126,12 @@ Para convertirlo en un servicio comercial real en Colombia: validar habilitació
 - El ejercicio de respiración es educativo y de uso opcional; permite pausar y reiniciar, y respeta las preferencias de movimiento reducido.
 
 **Importante:** ni IndexedDB ni el selector de roles son un mecanismo de seguridad o autenticación. No introducir datos de pacientes, resultados de salud ni información confidencial real.
+
+## Navegación y accesibilidad v0.5
+
+- En móvil se muestran tres accesos rápidos: **Inicio**, **Citas** y **Recorrido**, además del menú completo.
+- El recorrido guiado es opcional y puede cerrarse, retrocederse o saltar a otro paso. No envía datos ni hace reservas por su cuenta.
+- Con teclado, **Saltar al contenido principal** aparece al recibir foco. **Escape** cierra el menú móvil o el recorrido.
+- La opción del sistema **Reducir movimiento** desactiva los efectos decorativos. Las animaciones no representan progreso clínico ni promesas de mejora.
+
+Los indicadores de negocio y resultados de bienestar exhibidos son ficticios. No hay servicios psicológicos reales ofrecidos por esta demostración.

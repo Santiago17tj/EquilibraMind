@@ -855,3 +855,151 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
   .experiential-section::after {animation:none !important;}
   .breathing-timeline span {transition:none !important;}
 }
+
+
+/* EquilibraMind v0.5 — navegación móvil y recorrido para exposición */
+.site-shell { overflow: clip; }
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 55;
+  background: rgba(250,248,243,.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+#contenido:focus { outline: none; }
+.skip-to-content {
+  position: fixed; top: -100px; left: 18px;
+  z-index: 200; background: #254a36; color: white;
+  font-size: 14px; font-weight: 700; border-radius: 0 0 12px 12px;
+  padding: 12px 18px; transition: top .16s ease;
+}
+.skip-to-content:focus { top: 0; }
+.hero-guide-entry {
+  display: flex; flex-direction: column; align-items: flex-start;
+  gap: 6px; margin-top: 22px;
+}
+.hero-guide-entry button {
+  display: inline-flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  background: none; border: none; border-bottom: 1px solid rgba(60,109,80,.36);
+  border-radius: 0; padding: 5px 0 8px;
+  color: #416e4e; font-weight: 800; font-size: 12px;
+  transition: color .2s ease, gap .2s ease;
+}
+.hero-guide-entry button:hover { color: #284a34; gap: 14px; }
+.hero-guide-entry span { font-size: 10px; color: #7c8d80; }
+.business-guide-link {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: transparent; border: 0; color: #355844;
+  font-size: 12px; font-weight: 800; padding: 12px 6px;
+  text-align: left; white-space: normal;
+}
+.business-guide-link:hover { color: #163a27; }
+.company-primary-actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 11px; margin-top: 24px; }
+.quiz-result .result-buttons { flex-wrap: wrap; }
+.quiz-result .result-buttons .button { white-space: normal; text-align: center; }
+.demo-guide {
+  position: fixed;
+  right: clamp(16px, 3.2vw, 56px);
+  bottom: 22px;
+  z-index: 85;
+  width: min(410px,calc(100vw - 32px));
+  padding: 22px 23px 19px;
+  border-radius: 23px;
+  color: #294934;
+  background: rgba(254,253,250,.98);
+  border: 1px solid #c9dcc9;
+  box-shadow: 0 23px 80px rgba(32,70,42,.18), 0 5px 22px rgba(35,64,43,.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+.demo-guide-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.demo-guide-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: #567961; letter-spacing: .085em; font-weight: 800; font-size: 10px;
+}
+.demo-guide-close { display: grid; place-items: center; width: 39px; height: 39px; color: #5e8166; border-radius: 50%; background: #edf4eb; border: 1px solid #dbe8d9; }
+.demo-guide-close:hover { background: #deeadb; }
+.demo-guide-progress {display:flex;gap:6px;margin-top:12px;}
+.demo-guide-progress button {
+  flex:1 1 0;min-width:0;height:33px;
+  padding:0;border:0;background:none;display:flex;align-items:center;
+}
+.demo-guide-progress button::before {
+  content:"";height:5px;border-radius:9px;width:100%;background:#e1e9df;
+  transition: background .24s ease;
+}
+.demo-guide-progress button.done::before {background:#7ca78a;}
+.demo-guide-progress button[aria-current="step"]::before {background:#365e43;}
+.demo-guide-body { min-height: 176px; }
+.demo-guide-count {font-size:10px;font-weight:800;color:#87a18a;letter-spacing:.12em;}
+.demo-guide-body h3 {
+  font: 500 26px/1.2 "Playfair Display",Georgia,serif;
+  color:#355741; margin:10px 0 11px;
+}
+.demo-guide-body p {font-size:12px;line-height:1.75;color:#596e5f;margin-bottom:8px;}
+.demo-guide-body small {font-size:10px;line-height:1.6;color:#869788;display:block;}
+.demo-guide-actions {display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:14px;}
+.demo-guide-actions .button {flex:1;padding:13px 14px;}
+.demo-guide-note {display:block;text-align:center;margin-top:13px;font-size:9px;color:#96a496;}
+.mobile-quick-nav {display:none;}
+@media (prefers-reduced-motion: no-preference) {
+  .demo-guide {animation:guide-entrance .44s cubic-bezier(.2,.9,.25,1) both;}
+  @keyframes guide-entrance {
+    from {opacity:0;transform:translateY(18px);}
+    to {opacity:1;transform:translateY(0);}
+  }
+}
+@media (max-width: 1100px) {
+  .header-actions .desktop-space { padding:10px 11px; font-size:11px; }
+}
+@media (max-width: 800px) {
+  .header {position:sticky;top:0;}
+  .nav.nav-open { max-height: min(80vh,650px); overflow-y: auto; overscroll-behavior: contain; }
+  .nav-link, .mobile-space-link { min-height:44px; display:flex; align-items:center; }
+  .header-actions .desktop-space {display:none;}
+  .site-shell { padding-bottom:74px; }
+  .mobile-quick-nav {
+    position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(3,1fr);
+    z-index:78;background:rgba(252,251,248,.98);
+    border-top:1px solid #dce7dc;
+    box-shadow:0 -9px 30px rgba(35,75,46,.07);
+    padding:7px 10px calc(7px + env(safe-area-inset-bottom,0px));
+    backdrop-filter:blur(12px);
+  }
+  .mobile-quick-nav button {
+    min-height:51px;border:0;border-radius:11px;background:transparent;
+    color:#718777;font-size:10px;font-weight:800;display:flex;
+    flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  }
+  .mobile-quick-nav button[aria-current="page"] {
+    color:#315b3d;background:#e8f2e7;
+  }
+  .mobile-quick-nav button:hover {background:#edf4e9;color:#335d40;}
+  .hero-guide-entry {align-items:center;text-align:center;}
+  .company-primary-actions {justify-content:flex-start;}
+  .company-primary-actions .button {white-space:normal;}
+}
+@media (max-width: 570px) {
+  .demo-guide {
+    right:10px;left:10px;bottom:12px;
+    width:auto;max-width:none;padding:15px 17px 14px;border-radius:19px;
+    box-shadow:0 14px 55px rgba(25,63,36,.19);
+  }
+  .demo-guide-body {min-height:120px;}
+  .demo-guide-body h3 {font-size:23px;margin:5px 0 7px;}
+  .demo-guide-body p {font-size:11px;line-height:1.6;}
+  .demo-guide-body small {font-size:10px;line-height:1.55;}
+  .demo-guide-progress {margin-top:5px;}
+  .demo-guide-progress button {height:24px;}
+  .demo-guide-actions {margin-top:9px;}
+  .demo-guide-actions .button {font-size:11px;min-height:43px;padding:10px 12px;}
+  .demo-guide-note {margin-top:9px;}
+  .hero-guide-entry button {justify-content:center;}
+  .company-primary-actions .button {width:100%;}
+  .quiz-result .result-buttons .button {width:100%;}
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-guide {animation:none !important;}
+  .hero-guide-entry button {transition:none !important;}
+}
