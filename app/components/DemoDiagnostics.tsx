@@ -67,11 +67,6 @@ export function DemoDiagnostics() {
       ok: seenPaths.size === portraits.length && images.every((item) => item.result.ok),
       detail: images.map((item) => `${item.name}: ${item.result.ok ? item.result.pixels + " px" : "no cargó"}`).join(" · ")
     });
-    checks.push({
-      name: "Solo datos de demostración",
-      ok: true,
-      detail: "Esta herramienta solo inspecciona datos ficticios e imágenes; no registra datos clínicos ni realiza pagos."
-    });
     setResults(checks);
     setLastChecked(new Intl.DateTimeFormat("es-CO", { hour:"2-digit",minute:"2-digit" }).format(new Date()));
     setRunning(false);
