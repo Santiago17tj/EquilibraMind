@@ -4,7 +4,7 @@
 
 Prototipo académico y demostración de negocio de una plataforma de bienestar psicológico, psicoeducación y prevención del agotamiento laboral (*burnout*). Inspirado en el trabajo de Psicología Organizacional de la UDI (2026).
 
-## Estado: versión 0.2 — perfiles y citas interactivas
+## Estado: versión 0.3 — experiencias por roles e imágenes IA
 
 Proyecto web funcional de demostración, con diseño **wellbeing premium** (verde salvia, marfil, grafito) y contenido en español.
 
@@ -18,6 +18,8 @@ Proyecto web funcional de demostración, con diseño **wellbeing premium** (verd
 - **Planes demostrativos:** pago por sesión, mensual y corporativo. **No hay cobros reales.**
 - **Empresas:** propuesta B2B y panel con métricas agregadas simuladas.
 - **Mi espacio:** vista personal de demostración, consulta de la reserva y ejercicios generales de respiración.
+- **Tres vistas de demostración:** paciente, psicólogo y administrador. El selector es público y **no implementa autenticación ni permisos reales**.
+- **Fotografías generadas con IA:** siete imágenes AVIF optimizadas para portada, perfiles, teleconsulta, empresas y bienestar estudiantil, claramente señaladas como ilustrativas o ficticias.
 - **Modo seguro para presentar:** avisos permanentes sobre la naturaleza simulada de los contenidos.
 
 ## Tecnología y estructura
@@ -33,9 +35,11 @@ app/
   page.tsx        # Sitio completo, estados y demo interactiva
   globals.css     # Diseño responsive
   icon.svg        # Favicon
+  components/RoleDashboard.tsx  # Selector y paneles de tres roles
 package.json      # Dependencias y scripts
 tsconfig.json     # TypeScript
 netlify.toml      # Configuración de build
+public/images/   # 7 fotografías AVIF generadas con IA
 ```
 
 ## Ejecutar en local
@@ -83,17 +87,18 @@ Importar el repositorio desde Vercel y dejar la configuración detectada de Next
 8. Pulsar «Cambiar cita demo», revisar que se recuperen los datos y confirmar una nueva fecha.
 9. Pulsar «Cancelar reserva demo» y comprobar que desaparezca del panel (puedes volver a crearla).
 10. Ir a **Para empresas** y abrir el panel de métricas ficticias.
-11. En **Planes**, explicar el modelo de pago por sesión, suscripción y B2B.
+11. Entrar a **Probar roles** y alternar entre Paciente, Psicólogo y Administrador. Aclarar que el selector no autentica usuarios y que las métricas son ejemplos.
+12. En **Planes**, explicar el modelo de pago por sesión, suscripción y B2B.
 
 ## Privacidad, ética y límites
 
-Este es un **prototipo**, no un prestador habilitado de servicios de salud. **No** ingresar nombres reales de pacientes, historias clínicas ni datos personales sensibles. Los profesionales, sus trayectorias, citas, precios, disponibilidad y métricas son ficticios. Las respuestas del cuestionario se procesan en memoria y no se guardan en el navegador ni se envían a un servidor. Solo una reserva **ficticia** puede almacenarse localmente para facilitar la presentación.
+Este es un **prototipo**, no un prestador habilitado de servicios de salud. **Las fotografías de profesionales representan personajes generados con inteligencia artificial; ninguna persona ilustrada es un profesional contratado o verificado. El selector de roles es público y no restringe acceso.** **No** ingresar nombres reales de pacientes, historias clínicas ni datos personales sensibles. Los profesionales, sus trayectorias, citas, precios, disponibilidad y métricas son ficticios. Las respuestas del cuestionario se procesan en memoria y no se guardan en el navegador ni se envían a un servidor. Solo una reserva **ficticia** puede almacenarse localmente para facilitar la presentación.
 
 Para convertirlo en un servicio comercial real en Colombia: validar habilitación profesional y del prestador, reglas de telesalud, consentimiento informado, privacidad, cifrado, respuesta a crisis, auditoría, pagos y derechos de acceso.
 
 ## Siguiente fase
 
-- **0.3:** separar el monolito en componentes reutilizables, mejorar accesibilidad y agregar cuentas de **demostración** con roles diferenciados (sin recopilar datos clínicos).
+- **0.4:** separar el monolito en componentes reutilizables, mejorar accesibilidad, persistencia local de escenarios y experiencia de demostración guiada; después incorporar autenticación segura real con controles de roles verificados.
 - **Fase comercial futura:** profesionales habilitados, autenticación segura y datos protegidos (Supabase), disponibilidad y cancelaciones reales, cobros integrados, y protocolos clínicos y empresariales bajo asesoría especializada.
 
 > No publicar secretos ni credenciales en este repositorio público.
