@@ -6,7 +6,7 @@ import {
   Building2, CalendarCheck2, CalendarDays, Check, CheckCircle2, ChevronDown,
   CircleHelp, ClipboardCheck, Clock3, Heart, HeartHandshake, Info, Leaf,
   LockKeyhole, Menu, MoonStar, PlayCircle, ShieldCheck, Sparkles, UserRound,
-  UsersRound, Wind, Video, MapPin, X
+  UsersRound, Wind, Video, MapPin, RotateCcw, GraduationCap, BriefcaseBusiness, X
 } from "lucide-react";
 
 type Section = "inicio" | "chequeo" | "profesionales" | "empresas" | "planes" | "espacio";
@@ -20,9 +20,33 @@ const nav: { id: Section; label: string }[] = [
   { id: "planes", label: "Planes" }
 ];
 const specialists = [
-  { id: 1, name: "Laura Méndez", role: "Psicología clínica", focus: "Estrés laboral y regulación emocional", initials: "LM", color: "peach", experience: "6 años · Experiencia ficticia" },
-  { id: 2, name: "Daniela Ríos", role: "Bienestar estudiantil", focus: "Ansiedad académica y hábitos de estudio", initials: "DR", color: "lilac", experience: "4 años · Experiencia ficticia" },
-  { id: 3, name: "Julián Herrera", role: "Psicología organizacional", focus: "Prevención del burnout y equilibrio laboral", initials: "JH", color: "sage", experience: "8 años · Experiencia ficticia" }
+  {
+    id: 1, name: "Laura Méndez", role: "Psicología clínica", focus: "Estrés laboral y regulación emocional",
+    initials: "LM", color: "peach", experience: "6 años · Trayectoria ficticia", category: "laboral",
+    audience: "Personas adultas", approaches: ["Manejo del estrés", "Regulación emocional", "Autocuidado"],
+    bio: "Perfil creado para ilustrar un acompañamiento centrado en la escucha, los hábitos saludables y la relación entre emociones y trabajo.",
+    education: "Formación clínica simulada para fines educativos."
+  },
+  {
+    id: 2, name: "Daniela Ríos", role: "Bienestar estudiantil", focus: "Ansiedad académica y hábitos de estudio",
+    initials: "DR", color: "lilac", experience: "4 años · Trayectoria ficticia", category: "estudiantil",
+    audience: "Estudiantes y jóvenes adultos", approaches: ["Estrés académico", "Organización del tiempo", "Hábitos de descanso"],
+    bio: "Perfil ficticio enfocado en desafíos estudiantiles: equilibrar exámenes, proyectos, exigencias personales y tiempo de recuperación.",
+    education: "Formación en bienestar estudiantil simulada."
+  },
+  {
+    id: 3, name: "Julián Herrera", role: "Psicología organizacional", focus: "Prevención del burnout y equilibrio laboral",
+    initials: "JH", color: "sage", experience: "8 años · Trayectoria ficticia", category: "laboral",
+    audience: "Profesionales y equipos de trabajo", approaches: ["Prevención del agotamiento", "Límites saludables", "Bienestar laboral"],
+    bio: "Perfil de demostración orientado a reconocer factores de sobrecarga y promover prácticas saludables en equipos y organizaciones.",
+    education: "Formación organizacional simulada para la presentación."
+  }
+];
+type ProfileFilter = "todos" | "laboral" | "estudiantil";
+const profileFilters: { value: ProfileFilter; label: string }[] = [
+  { value: "todos", label: "Todos los enfoques" },
+  { value: "laboral", label: "Estrés laboral" },
+  { value: "estudiantil", label: "Vida estudiantil" }
 ];
 const questions = [
   "¿Con qué frecuencia terminas el día sintiéndote sin energía?",
@@ -36,6 +60,15 @@ const responseOptions = ["Nunca", "Algunas veces", "Con frecuencia", "Casi siemp
 const slotOptions = ["9:00 a. m.", "11:30 a. m.", "3:00 p. m.", "5:00 p. m."];
 const appointmentPrices: Record<VisitMode, number> = { virtual: 95000, presencial: 120000 };
 const formatCOP = (value: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(value);
+const localDateISO = () => {
+  const now = new Date();
+  return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+};
+const readableDate = (value: string) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const [year, month, day] = value.split("-").map(Number);
+  return new Intl.DateTimeFormat("es-CO", { day: "numeric", month: "long", year: "numeric" }).format(new Date(year, month - 1, day));
+};
 
 function Logo({ onClick }: { onClick: () => void }) {
   return <button type="button" className="brand" onClick={onClick} aria-label="Volver al inicio">
@@ -82,6 +115,10 @@ export default function Home() {
   const [quizStep, setQuizStep] = useState(0);
   const [quizFinished, setQuizFinished] = useState(false);
   const [selectedId, setSelectedId] = useState(1);
+  const [profileFilter, setProfileFilter] = useState<ProfileFilter>("todos");
+  const [expandedProfileId, setExpandedProfileId] = useState<number | null>(null);
+  const [jumpToBooking, setJumpToBooking] = useState(false);
+  const [cancelNotice, setCancelNotice] = useState(false);
   const [bookingDate, setBookingDate] = useState("");
   const [bookingHour, setBookingHour] = useState("");
   const [mode, setMode] = useState<VisitMode>("virtual");
@@ -109,6 +146,10 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
   const specialist = specialists.find((person) => person.id === selectedId) ?? specialists[0];
+  const expandedProfile = specialists.find((person) => person.id === expandedProfileId);
+  const visibleSpecialists = specialists.filter((person) => profileFilter === "todos" || person.category === profileFilter);
+  const isDateValid = bookingDate !== "" && bookingDate >= localDateISO();
+  const isBookingReady = isDateValid && slotOptions.includes(bookingHour);
   const total = answers.reduce((sum, item) => sum + Math.max(item, 0), 0);
   const category = total <= 5 ? "Una oportunidad para seguir cuidándote" : total <= 11 ? "Quizá necesites más momentos de equilibrio" : "Vale la pena prestar atención a tu bienestar";
   const guidance = total <= 5
@@ -117,12 +158,42 @@ export default function Home() {
       ? "Varias de tus respuestas sugieren que las responsabilidades podrían estar ocupando demasiado espacio. Prueba a revisar tus límites y apoyos."
       : "Has señalado señales frecuentes de cansancio o sobrecarga. Considera hablar con una persona profesional habilitada y buscar apoyo en tu entorno.";
   const saveBooking = () => {
-    if (!bookingDate || !bookingHour) return;
+    if (!isBookingReady) return;
     const next: Booking = { name: specialist.name, role: specialist.role, date: bookingDate, hour: bookingHour, mode, price: appointmentPrices[mode] };
     setBooking(next);
     setBookedNotice(true);
     try { window.localStorage.setItem("equilibramind-demo-booking-v1", JSON.stringify(next)); } catch {}
   };
+  const chooseSpecialist = (id: number) => {
+    setSelectedId(id);
+    setBookedNotice(false);
+    setBookingDate("");
+    setBookingHour("");
+    document.getElementById("booking-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+  const beginReschedule = () => {
+    if (!booking) return;
+    const found = specialists.find((person) => person.name === booking.name);
+    setSelectedId(found?.id ?? 1);
+    setMode(booking.mode ?? "virtual");
+    setBookingDate(booking.date >= localDateISO() ? booking.date : "");
+    setBookingHour(slotOptions.includes(booking.hour) ? booking.hour : "");
+    setJumpToBooking(true);
+    navigate("profesionales");
+  };
+  const cancelBooking = () => {
+    if (!booking || !window.confirm("¿Cancelar la reserva de demostración? Solo se eliminará de este navegador.")) return;
+    setBooking(null);
+    setBookedNotice(false);
+    setCancelNotice(true);
+    try { window.localStorage.removeItem("equilibramind-demo-booking-v1"); } catch {}
+  };
+  useEffect(() => {
+    if (view === "profesionales" && jumpToBooking) {
+      document.getElementById("booking-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setJumpToBooking(false);
+    }
+  }, [jumpToBooking, view]);
   const resetQuiz = () => { setAnswers(Array(questions.length).fill(-1)); setQuizStep(0); setQuizFinished(false); };
   const choosePlan = (name: string) => { setSelectedPlan(name); navigate("espacio"); };
 
