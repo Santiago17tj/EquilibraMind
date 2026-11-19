@@ -13,7 +13,8 @@ Proyecto web funcional de demostración, con diseño **wellbeing premium** (verd
 - **Inicio comercial responsive:** propuesta de valor y recorrido de bienvenida.
 - **Mi bienestar:** cuestionario orientativo de seis preguntas, con reflexión educativa y recomendaciones generales. **No es una prueba validada ni diagnóstico clínico.**
 - **Profesionales:** tres perfiles completamente ficticios, con énfasis en psicología clínica, estudiantil y organizacional.
-- **Reservas ficticias:** selección de profesional, fecha y hora. Confirmación simulada guardada únicamente en el almacenamiento local del navegador.
+- **Reservas ficticias:** selección de profesional, **teleconsulta o presencial proyectada**, fecha y hora. Precio de referencia mostrado antes de confirmar. La modalidad y el precio quedan guardados en el navegador con la reserva simulada.
+- **Tarifas orientativas (solo demostración):** teleconsulta de 50 minutos $95.000 COP; presencial futura en Bucaramanga de 50 minutos $120.000 COP; tres teleconsultas mensuales $279.000 COP. No se realizan pagos.
 - **Planes demostrativos:** pago por sesión, mensual y corporativo. **No hay cobros reales.**
 - **Empresas:** propuesta B2B y panel con métricas agregadas simuladas.
 - **Mi espacio:** vista personal de demostración, consulta de la reserva y ejercicios generales de respiración.
