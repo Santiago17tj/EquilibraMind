@@ -196,6 +196,27 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
 .booking-form label { color: #4c6555; font-size: 11px; font-weight: 800; margin-top: 7px; }
 .booking-form select, .booking-form input { padding: 13px 14px; width: 100%; border: 1px solid #dde6dc; color: #526b59; background: #fff; border-radius: 9px; font-size: 12px; outline-color: #8caa90; }
 .booking-form .button { margin-top: 12px; }
+
+.modality-picker { border: 0; padding: 9px 0 4px; margin: 3px 0; min-width: 0; }
+.modality-picker legend { padding: 0; font-size: 11px; font-weight: 800; color: #4c6555; margin-bottom: 11px; }
+.modality-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.modality-option { display: flex; gap: 8px; cursor: pointer; padding: 13px 10px; border: 1px solid #dde6dc; border-radius: 12px; background: #fff; transition: background .2s, border-color .2s; min-width: 0; }
+.modality-option:has(input:focus-visible) { outline: 3px solid #a5c6ab; outline-offset: 2px; }
+.modality-option.chosen { border-color: #6f9a7b; background: #edf5ee; box-shadow: inset 0 0 0 1px #6f9a7b; }
+.modality-option input { width: 15px; height: 15px; flex: 0 0 15px; margin: 3px 0 0; accent-color: var(--pine); }
+.modality-option-body { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+.modality-option-body svg { color: #679071; margin-bottom: 10px; }
+.modality-option-body strong { font-size: 12px; color: #365842; }
+.modality-option-body small { display: block; font-size: 10px; color: #78887b; line-height: 1.6; margin: 5px 0; }
+.modality-option-body b { color: #335c42; font-size: 13px; margin-top: 5px; }
+.modality-disclaimer { background: #f5f7f1; border-radius: 9px; display: flex; align-items: flex-start; gap: 9px; padding: 11px; color: #6a806e; font-size: 10px; line-height: 1.7; }
+.modality-disclaimer svg { flex: 0 0 16px; margin-top: 1px; }
+.booking-summary { background: #e9f2e8; padding: 16px; border-radius: 11px; margin-top: 13px; }
+.booking-summary > div { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px; }
+.booking-summary span { font-size: 11px; font-weight: 700; color: #4e7058; }
+.booking-summary strong { font-size: 19px; color: #315c41; }
+.booking-summary small { display: block; color: #718372; font-size: 10px; line-height: 1.6; margin-top: 6px; }
+
 .success-message { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; background: #e3f1e5; color: #4c7858; font-size: 11px; padding: 11px; border-radius: 8px; }
 .success-message button { border: 0; color: #35684a; background: none; text-decoration: underline; font-weight: 800; }
 .company-benefits { display: grid; grid-template-columns: repeat(3,1fr); gap: 19px; }
@@ -394,4 +415,14 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
 }
 @media(prefers-reduced-motion: reduce) {
   *, *:before, *:after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+@media (max-width: 410px) {
+ .modality-options { grid-template-columns: 1fr; }
+ .modality-option { padding: 12px; }
+ .modality-option-body { flex-direction: row; flex-wrap: wrap; align-items: center; gap: 5px 9px; }
+ .modality-option-body svg { margin: 0; }
+ .modality-option-body strong { width: calc(100% - 35px); }
+ .modality-option-body small { flex: 1 1 100%; margin: 2px 0; }
+ .modality-option-body b { margin-top: 0; }
 }
