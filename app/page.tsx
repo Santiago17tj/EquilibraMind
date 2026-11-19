@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { RoleDashboard } from "./components/RoleDashboard";
+import { BreathingExercise } from "./components/BreathingExercise";
 import {
   specialists, loadDemoSnapshot, findActiveBooking, saveDemoBooking,
   cancelDemoBooking, resetDemoDatabase, setDemoSetting,
@@ -151,8 +152,10 @@ export default function Home() {
     loadDemoSnapshot().then((snapshot) => {
       if (!active) return;
       setDemoSnapshot(snapshot);
-      const patientId = snapshot.settings.patientId;
-      if (snapshot.patients.some((patient) => patient.id === patientId)) setDemoPatientId(patientId);
+      const preferred = snapshot.settings.patientId;
+      const patientId = snapshot.patients.some((patient) => patient.id === preferred) ? preferred : "valentina";
+      setDemoPatientId(patientId);
+      setSelectedPlan(snapshot.settings[`plan:${patientId}`] ?? null);
       if (["paciente", "psicologo", "administrador"].includes(snapshot.settings.role)) {
         setDemoRole(snapshot.settings.role as DemoRole);
       }
@@ -308,7 +311,7 @@ export default function Home() {
       </div>
     </header>
 
-    <main id="contenido">
+    <main id="contenido" key={view} className="page-transition">
       {view === "inicio" && <>
         <section className="hero section-width">
           <div className="hero-content">
@@ -358,6 +361,16 @@ export default function Home() {
             <div className="wellbeing-art"><div className="wellbeing-circle"><span>“</span><p>Tu bienestar<br/>no es un lujo.<br/><em>Es parte de ti.</em></p></div><div className="art-leaf a"/><div className="art-leaf b"/></div>
             <div className="split-copy"><div className="eyebrow">UNA IDEA QUE NACE DEL CUIDADO</div><h2>Tu vida es mucho más que <em>tu lista de pendientes.</em></h2><p>El agotamiento puede aparecer cuando las exigencias no dejan espacio para descansar. Reconocer tus necesidades es un punto de partida para recuperar el equilibrio.</p><div className="check-row"><CheckCircle2 size={19}/> Información educativa y accesible</div><div className="check-row"><CheckCircle2 size={19}/> Herramientas para la reflexión personal</div><div className="check-row"><CheckCircle2 size={19}/> Opciones de acompañamiento a futuro</div><button className="button button-primary" onClick={() => navigate("chequeo")}>Dar mi primer paso <ArrowRight size={17}/></button></div>
           </div>
+        </section>
+        <section className="experiential-section section-width">
+          <div className="experiential-copy">
+            <div className="eyebrow"><span className="sparkle-dot"/> TU BIENESTAR, UN PASO A LA VEZ</div>
+            <h2>Antes de seguir, date <em>un momento para ti.</em></h2>
+            <p>Cuando las responsabilidades pesan, a veces necesitamos un instante sin exigencias. Prueba este ejercicio interactivo y descubre cómo se sentiría EquilibraMind como compañero de tu rutina.</p>
+            <div className="experience-note"><Wind size={22}/><span>Un minuto de respiración consciente. Sin formularios. Sin juicios. A tu propio ritmo.</span></div>
+            <button className="text-link" onClick={() => navigate("chequeo")}>Después, conoce tu bienestar <ArrowRight size={18}/></button>
+          </div>
+          <BreathingExercise />
         </section>
         <section className="photo-feature-section section-width">
           <div className="photo-feature-copy">
@@ -441,6 +454,10 @@ export default function Home() {
             <div className="booking-soft-warning"><Info size={18}/><span>Los horarios son ilustrativos, sin verificación de agenda. La modalidad presencial está prevista para una etapa futura.</span></div>
           </div>
           <div className="booking-form">
+            <label htmlFor="booking-patient">Personaje de paciente para esta demo</label>
+            <select id="booking-patient" value={demoPatientId} disabled={!demoSnapshot || dbBusy} onChange={event => selectDemoPatient(event.target.value)}>
+              {(demoSnapshot?.patients ?? []).map(person => <option key={person.id} value={person.id}>{person.label}</option>)}
+            </select>
             <label htmlFor="professional">Profesional de ejemplo</label>
             <select id="professional" value={selectedId} onChange={(event) => {setSelectedId(Number(event.target.value)); setBookedNotice(false);}}>{specialists.map((person) => <option key={person.id} value={person.id}>{person.name} — {person.role}</option>)}</select>
             <fieldset className="modality-picker">
@@ -468,7 +485,7 @@ export default function Home() {
               <small>{isBookingReady ? readableDate(bookingDate) + " · " + bookingHour + " · " + specialist.name : "Selecciona fecha y horario para completar el resumen."}</small>
               <small>Precio ilustrativo en COP. No se cobra ni se confirma ninguna atención real.</small>
             </div>
-            <button type="button" className="button button-primary button-full" onClick={saveBooking} disabled={!isBookingReady}>Confirmar reserva ficticia <CalendarCheck2 size={18}/></button>
+            <button type="button" className="button button-primary button-full" onClick={saveBooking} disabled={!isBookingReady}>{dbBusy ? "Guardando reserva..." : "Confirmar reserva ficticia"} <CalendarCheck2 size={18}/></button>
             {bookedNotice && <div className="success-message" role="status"><CheckCircle2 size={18}/> ¡Reserva de demostración guardada! <button onClick={() => navigate("espacio")}>Ver en Mi espacio</button></div>}
           </div>
         </div>
@@ -490,12 +507,20 @@ export default function Home() {
         </div><DemoNote />
       </section>}
 
-      {view === "demo" && <section className="inner-section section-width"><RoleDashboard booking={booking} selectedRole={demoRole} setSelectedRole={setDemoRole} onViewBooking={() => navigate("espacio")} onChooseProfessional={() => navigate("profesionales")}/></section>}
+      {view === "demo" && <section className="inner-section section-width">
+        <RoleDashboard snapshot={demoSnapshot} booking={booking} selectedRole={demoRole} setSelectedRole={selectDemoRole}
+          currentPatientId={demoPatientId} onSelectPatient={selectDemoPatient} onReset={resetDemo}
+          onViewBooking={() => navigate("espacio")} onChooseProfessional={() => navigate("profesionales")} />
+      </section>}
 
       {view === "espacio" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">UN ESPACIO PARA TI</div><h1>Bienvenida a <em>tu momento de calma.</em></h1><p>Un panel personal simulado para descubrir cómo se sentiría usar EquilibraMind cada día.</p></div>
-        <div className="space-grid"><div className="space-main"><div className="greeting-card"><span className="tiny-label">PERFIL DE PRUEBA · VALENTINA</span><h2>Hoy también puedes darte un respiro.</h2><p>Los pequeños momentos de cuidado también cuentan.</p><span className="greeting-spark"><Sparkles size={43}/></span></div>
+        <div className="space-grid"><div className="space-main"><div className="greeting-card"><span className="tiny-label">PERFIL DE PRUEBA · {(currentDemoPatient?.name ?? "PACIENTE").toUpperCase()}</span><h2>Hoy también puedes darte un respiro.</h2><p>Los pequeños momentos de cuidado también cuentan.</p><span className="greeting-spark"><Sparkles size={43}/></span></div>
           <div className="space-card">
+            <label className="local-field-label" htmlFor="space-patient">Cambiar personaje de prueba</label>
+            <select className="local-picker" id="space-patient" value={demoPatientId} disabled={!demoSnapshot || dbBusy} onChange={event => selectDemoPatient(event.target.value)}>
+              {(demoSnapshot?.patients ?? []).map(person => <option key={person.id} value={person.id}>{person.label}</option>)}
+            </select>
             <div className="space-title"><h3><CalendarDays size={21}/> Mi cita de demostración</h3><span>DEMO</span></div>
             {booking ? <>
               <div className="appointment-item">
@@ -505,7 +530,7 @@ export default function Home() {
               <p className="muted-text">Esta reserva es ficticia y solo existe en este navegador. No hay cita médica, videollamada, consultorio ni pago real.</p>
               <div className="appointment-actions">
                 <button className="button button-outline" onClick={beginReschedule}><RotateCcw size={16}/> Cambiar cita demo</button>
-                <button className="button cancel-button" onClick={cancelBooking}>Cancelar reserva demo</button>
+                <button className="button cancel-button" disabled={dbBusy} onClick={cancelBooking}>Cancelar reserva demo</button>
               </div>
             </> : <>
               {cancelNotice && <p className="cancel-notice" role="status"><CheckCircle2 size={17}/> La reserva ficticia fue cancelada y eliminada de este navegador.</p>}
@@ -514,9 +539,10 @@ export default function Home() {
             </>}
           </div>
           {selectedPlan && <div className="space-card"><div className="space-title"><h3><CheckCircle2 size={21}/> Plan de ejemplo</h3><span>NO CONTRATADO</span></div><p>Seleccionaste <strong>{selectedPlan}</strong> para explorar el modelo comercial. No se ha realizado ningún pago ni suscripción.</p></div>}
-        </div><aside className="space-side"><div className="space-card"><h3>Tu pausa de hoy <Leaf size={19}/></h3><p>¿Has respirado profundo hoy? Prueba inhalar suavemente, exhalar sin prisa y reconocer cómo te sientes.</p><div className="breathe-graphic"><span>inhala · exhala</span></div><small>Actividad de relajación general, no intervención clínica.</small></div><div className="space-card"><h3>Continúa explorando</h3><button className="shortcut" onClick={() => { resetQuiz(); navigate("chequeo"); }}><ClipboardCheck size={20}/> Chequeo orientativo <ArrowRight size={16}/></button><button className="shortcut" onClick={() => navigate("planes")}><HeartHandshake size={20}/> Planes de ejemplo <ArrowRight size={16}/></button></div></aside></div>
+        </div><aside className="space-side"><div className="space-card"><h3>Tu pausa de hoy <Leaf size={19}/></h3><p>¿Has respirado profundo hoy? Prueba inhalar suavemente, exhalar sin prisa y reconocer cómo te sientes.</p><BreathingExercise compact /></div><div className="space-card"><h3>Continúa explorando</h3><button className="shortcut" onClick={() => { resetQuiz(); navigate("chequeo"); }}><ClipboardCheck size={20}/> Chequeo orientativo <ArrowRight size={16}/></button><button className="shortcut" onClick={() => navigate("planes")}><HeartHandshake size={20}/> Planes de ejemplo <ArrowRight size={16}/></button></div></aside></div>
       </section>}
     </main>
+    {dbError && <div className="local-data-error" role="alert"><Info size={18}/><span>{dbError}</span><button type="button" onClick={() => setDbError("")}>Cerrar</button></div>}
     <DemoNote compact />
     <BrandFooter navigate={navigate} />
   </div>;

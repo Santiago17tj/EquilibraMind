@@ -4,7 +4,7 @@
 
 Prototipo académico y demostración de negocio de una plataforma de bienestar psicológico, psicoeducación y prevención del agotamiento laboral (*burnout*). Inspirado en el trabajo de Psicología Organizacional de la UDI (2026).
 
-## Estado: versión 0.3 — experiencias por roles e imágenes IA
+## Estado: versión 0.4 — base de datos local y experiencia interactiva
 
 Proyecto web funcional de demostración, con diseño **wellbeing premium** (verde salvia, marfil, grafito) y contenido en español.
 
@@ -12,22 +12,24 @@ Proyecto web funcional de demostración, con diseño **wellbeing premium** (verd
 
 - **Inicio comercial responsive:** propuesta de valor y recorrido de bienvenida.
 - **Mi bienestar:** cuestionario orientativo de seis preguntas, con reflexión educativa y recomendaciones generales. **No es una prueba validada ni diagnóstico clínico.**
-- **Profesionales:** tres perfiles completamente ficticios, con filtros por estrés laboral y vida estudiantil, fichas informativas ampliadas, enfoques y trayectorias simuladas. Los avatares son ilustrativos, no fotografías de profesionales reales.
-- **Reservas ficticias:** flujo guiado para seleccionar profesional, **teleconsulta o presencial proyectada**, fecha y horario de ejemplo, con precio ilustrativo visible antes de confirmar. La reserva se guarda solo en el navegador y puede **modificarse o cancelarse** desde «Mi espacio». Se conserva únicamente una reserva de demostración a la vez.
+- **Profesionales:** tres perfiles completamente ficticios, con filtros por estrés laboral y vida estudiantil, fichas informativas ampliadas, enfoques y trayectorias simuladas. Los retratos son imágenes sintéticas generadas con IA de personajes inexistentes.
+- **Reservas ficticias:** flujo guiado para elegir profesional, personaje de paciente, **teleconsulta o presencial proyectada**, fecha, horario y precio. Las reservas se guardan en **IndexedDB**, se pueden modificar o cancelar y sus cambios aparecen en las vistas de paciente, psicólogo y administrador. Cada personaje puede tener una cita activa a la vez.
 - **Tarifas orientativas (solo demostración):** teleconsulta de 50 minutos $95.000 COP; presencial futura en Bucaramanga de 50 minutos $120.000 COP; tres teleconsultas mensuales $279.000 COP. No se realizan pagos.
 - **Planes demostrativos:** pago por sesión, mensual y corporativo. **No hay cobros reales.**
 - **Empresas:** propuesta B2B y panel con métricas agregadas simuladas.
 - **Mi espacio:** vista personal de demostración, consulta de la reserva y ejercicios generales de respiración.
-- **Tres vistas de demostración:** paciente, psicólogo y administrador. El selector es público y **no implementa autenticación ni permisos reales**.
+- **Tres vistas conectadas a los mismos datos locales:** paciente (cambiar entre tres personajes), psicólogo (agenda por profesional) y administrador (indicadores calculados con reservas ficticias). Selector público **sin autenticación ni permisos reales**.
 - **Fotografías generadas con IA:** siete imágenes AVIF optimizadas para portada, perfiles, teleconsulta, empresas y bienestar estudiantil, claramente señaladas como ilustrativas o ficticias.
+- **Ejercicio de respiración interactivo:** una pausa de un minuto con control de inicio, pausa y reinicio; movimientos discretos y respeto por movimiento reducido.
+- **Restablecer demo:** un botón repone pacientes, citas, planes y preferencias ficticios en el navegador antes de cada exposición.
 - **Modo seguro para presentar:** avisos permanentes sobre la naturaleza simulada de los contenidos.
 
 ## Tecnología y estructura
 
 - [Next.js](https://nextjs.org/) (App Router), React, TypeScript y Lucide.
-- CSS responsive sin dependencias visuales pesadas.
-- Sin backend, credenciales, datos de pacientes ni cuentas reales.
-- Base preparada para incorporar Supabase y autenticación en una fase posterior.
+- CSS responsive, animaciones de entrada y microinteracciones; preferencia de movimiento reducido respetada.
+- **IndexedDB**, base de datos local del navegador (sin servidor ni Supabase). Los datos de una persona no se sincronizan con otros celulares o computadores.
+- Solo hay personajes y citas ficticias: no es una base de datos apta para información clínica, no ofrece autenticación y no tiene pagos reales.
 
 ```text
 app/
@@ -35,7 +37,9 @@ app/
   page.tsx        # Sitio completo, estados y demo interactiva
   globals.css     # Diseño responsive
   icon.svg        # Favicon
-  components/RoleDashboard.tsx  # Selector y paneles de tres roles
+  components/RoleDashboard.tsx  # Paneles con datos de IndexedDB
+  components/BreathingExercise.tsx  # Pausa guiada de un minuto
+  lib/demo-db.ts  # Esquema y operaciones locales IndexedDB
 package.json      # Dependencias y scripts
 tsconfig.json     # TypeScript
 netlify.toml      # Configuración de build
@@ -82,23 +86,34 @@ Importar el repositorio desde Vercel y dejar la configuración detectada de Next
 3. Ir a **Profesionales** y seleccionar un perfil ficticio.
 4. Utilizar los filtros «Estrés laboral» o «Vida estudiantil» y abrir «Ver perfil» para mostrar una ficha ampliada.
 5. Pulsar «Agendar demo» y elegir entre teleconsulta o presencial futura; revisar el precio antes de continuar.
-6. Elegir fecha y hora de ejemplo y confirmar una reserva simulada.
+6. Elegir personaje, fecha y hora de ejemplo, confirmar una reserva y comprobar el resultado.
 7. Abrir **Mi espacio** y comprobar que la reserva se conserva al recargar ese navegador.
 8. Pulsar «Cambiar cita demo», revisar que se recuperen los datos y confirmar una nueva fecha.
 9. Pulsar «Cancelar reserva demo» y comprobar que desaparezca del panel (puedes volver a crearla).
 10. Ir a **Para empresas** y abrir el panel de métricas ficticias.
-11. Entrar a **Probar roles** y alternar entre Paciente, Psicólogo y Administrador. Aclarar que el selector no autentica usuarios y que las métricas son ejemplos.
+11. Entrar a **Probar roles**, alternar entre Paciente, Psicólogo y Administrador y comprobar que la reserva se refleja en las tres vistas. Usar **Restablecer datos de la demo** antes de volver a presentar.
 12. En **Planes**, explicar el modelo de pago por sesión, suscripción y B2B.
 
 ## Privacidad, ética y límites
 
-Este es un **prototipo**, no un prestador habilitado de servicios de salud. **Las fotografías de profesionales representan personajes generados con inteligencia artificial; ninguna persona ilustrada es un profesional contratado o verificado. El selector de roles es público y no restringe acceso.** **No** ingresar nombres reales de pacientes, historias clínicas ni datos personales sensibles. Los profesionales, sus trayectorias, citas, precios, disponibilidad y métricas son ficticios. Las respuestas del cuestionario se procesan en memoria y no se guardan en el navegador ni se envían a un servidor. Solo una reserva **ficticia** puede almacenarse localmente para facilitar la presentación.
+Este es un **prototipo**, no un prestador habilitado de servicios de salud. **Las fotografías de profesionales representan personajes generados con inteligencia artificial; ninguna persona ilustrada es un profesional contratado o verificado. El selector de roles es público y no restringe acceso.** **No** ingresar nombres reales de pacientes, historias clínicas ni datos personales sensibles. Los profesionales, sus trayectorias, citas, precios, disponibilidad y métricas son ficticios. Las respuestas del cuestionario se procesan en memoria y no se guardan en el navegador ni se envían a un servidor. Las citas, planes y personajes **ficticios** se guardan en IndexedDB del navegador; cada dispositivo mantiene una copia independiente, sin servidor ni sincronización. No almacenar ningún dato clínico ni personal real.
 
 Para convertirlo en un servicio comercial real en Colombia: validar habilitación profesional y del prestador, reglas de telesalud, consentimiento informado, privacidad, cifrado, respuesta a crisis, auditoría, pagos y derechos de acceso.
 
 ## Siguiente fase
 
-- **0.4:** separar el monolito en componentes reutilizables, mejorar accesibilidad, persistencia local de escenarios y experiencia de demostración guiada; después incorporar autenticación segura real con controles de roles verificados.
+- **0.5:** terminar modularización y pruebas funcionales, mejorar accesibilidad y preparar la exposición con recorridos y escenarios de negocio. Mantener IndexedDB hasta decidir si se inicia una fase comercial.
 - **Fase comercial futura:** profesionales habilitados, autenticación segura y datos protegidos (Supabase), disponibilidad y cancelaciones reales, cobros integrados, y protocolos clínicos y empresariales bajo asesoría especializada.
 
 > No publicar secretos ni credenciales en este repositorio público.
+
+## Demostración local — funcionamiento y límites
+
+- Los datos de prueba iniciales se crean la primera vez que se visita el sitio: 3 pacientes, 3 profesionales, 3 planes y 3 citas simuladas.
+- Los cambios realizados en **IndexedDB** permanecen después de actualizar la página en **ese navegador**. No se transfieren entre dispositivos ni cuentas.
+- Para preparar una nueva exposición, entrar en **Probar roles → Restablecer datos de la demo**.
+- Si se bloquea el almacenamiento del navegador (p. ej., modo privado restrictivo), la app muestra un aviso en lugar de enviar datos a un servidor.
+- El chequeo orientativo de bienestar **no guarda** respuestas en la base de datos local.
+- El ejercicio de respiración es educativo y de uso opcional; permite pausar y reiniciar, y respeta las preferencias de movimiento reducido.
+
+**Importante:** ni IndexedDB ni el selector de roles son un mecanismo de seguridad o autenticación. No introducir datos de pacientes, resultados de salud ni información confidencial real.
