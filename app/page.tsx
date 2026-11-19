@@ -238,7 +238,8 @@ export default function Home() {
             </div>
             <div className="hero-trust"><div className="trust-avatars"><span>✦</span><span>♡</span><span>☼</span></div><span>Una experiencia cálida, a tu ritmo y sin juicios</span></div>
           </div>
-          <div className="hero-visual" aria-label="Ilustración abstracta de bienestar y tranquilidad" role="img">
+          <div className="hero-visual" aria-label="Imagen ilustrativa de una pausa para el bienestar" role="img">
+            <img className="hero-generated-photo" src="/images/hero.avif" alt="" onError={(event) => { event.currentTarget.style.display = "none"; }} />
             <div className="visual-sun"/>
             <div className="visual-orbit orbit-one"/>
             <div className="visual-orbit orbit-two"/>
@@ -275,7 +276,7 @@ export default function Home() {
             <div className="split-copy"><div className="eyebrow">UNA IDEA QUE NACE DEL CUIDADO</div><h2>Tu vida es mucho más que <em>tu lista de pendientes.</em></h2><p>El agotamiento puede aparecer cuando las exigencias no dejan espacio para descansar. Reconocer tus necesidades es un punto de partida para recuperar el equilibrio.</p><div className="check-row"><CheckCircle2 size={19}/> Información educativa y accesible</div><div className="check-row"><CheckCircle2 size={19}/> Herramientas para la reflexión personal</div><div className="check-row"><CheckCircle2 size={19}/> Opciones de acompañamiento a futuro</div><button className="button button-primary" onClick={() => navigate("chequeo")}>Dar mi primer paso <ArrowRight size={17}/></button></div>
           </div>
         </section>
-        <section className="section-block section-width business-banner"><div><div className="eyebrow">BIENESTAR QUE TAMBIÉN SE COMPARTE</div><h2>Equipos más humanos. <em>Entornos más saludables.</em></h2><p>Conoce cómo EquilibraMind podría ayudar a las empresas a promover una cultura de cuidado y prevención del agotamiento laboral.</p><button className="button button-dark" onClick={() => navigate("empresas")}>EquilibraMind para empresas <ArrowRight size={18}/></button></div><div className="business-art"><Building2 size={104} strokeWidth={1.1}/><div className="business-heart"><Heart size={32} fill="currentColor" strokeWidth={1}/></div></div></section>
+        <section className="section-block section-width business-banner"><div><div className="eyebrow">BIENESTAR QUE TAMBIÉN SE COMPARTE</div><h2>Equipos más humanos. <em>Entornos más saludables.</em></h2><p>Conoce cómo EquilibraMind podría ayudar a las empresas a promover una cultura de cuidado y prevención del agotamiento laboral.</p><button className="button button-dark" onClick={() => navigate("empresas")}>EquilibraMind para empresas <ArrowRight size={18}/></button></div><div className="business-art business-art-photo"><img src="/images/empresas.avif" alt="Grupo ilustrativo de personas en un taller de bienestar, imagen generada con IA" onError={(event) => { event.currentTarget.style.display = "none"; }} /><div className="business-heart"><Heart size={32} fill="currentColor" strokeWidth={1}/></div></div></section>
         <section className="closing-cta section-width"><div className="eyebrow">CADA PASO CUENTA</div><h2>Tu bienestar también <em>merece espacio.</em></h2><p>Comienza con unos minutos para descubrir cómo te has sentido.</p><button className="button button-primary button-large" onClick={() => navigate("chequeo")}>Comenzar mi chequeo <ArrowRight size={18}/></button></section>
       </>}
 
@@ -306,9 +307,10 @@ export default function Home() {
         </div>
         <div className="specialist-grid">
           {visibleSpecialists.map((person) => <article className="specialist-card" key={person.id}>
-            <div className={"specialist-photo " + person.color} aria-label={"Avatar ilustrativo de " + person.name}>
+            <div className={"specialist-photo " + person.color} aria-label={"Retrato ilustrativo del personaje ficticio " + person.name}>
               <div className="portrait-orbit"/><div className="avatar-bust"><span>{person.initials}</span></div>
-              <div className="profile-label">PERSONAJE FICTICIO</div>
+              <img className="specialist-generated-photo" src={"/images/" + (person.id === 1 ? "laura" : person.id === 2 ? "daniela" : "julian") + ".avif"} alt={"Retrato generado con IA de " + person.name + ", personaje ficticio"} onError={(event) => {event.currentTarget.style.display = "none";}} />
+              <div className="profile-label">PERSONAJE FICTICIO · IA</div>
             </div>
             <div className="specialist-info">
               <div className="tag">Perfil de demostración · 50 minutos</div>
