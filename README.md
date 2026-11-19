@@ -4,7 +4,7 @@
 
 Prototipo académico y demostración de negocio de una plataforma de bienestar psicológico, psicoeducación y prevención del agotamiento laboral (*burnout*). Inspirado en el trabajo de Psicología Organizacional de la UDI (2026).
 
-## Estado: versión 0.5 — experiencia para personas y empresas, accesibilidad y exposición
+## Estado: versión 0.6 — calidad, retratos diferenciados y reserva más intuitiva
 
 Proyecto web funcional de demostración, con diseño **wellbeing premium** (verde salvia, marfil, grafito) y contenido en español.
 
@@ -12,18 +12,19 @@ Proyecto web funcional de demostración, con diseño **wellbeing premium** (verd
 
 - **Inicio comercial responsive:** propuesta de valor y recorrido de bienvenida.
 - **Mi bienestar:** cuestionario orientativo de seis preguntas, con reflexión educativa y recomendaciones generales. **No es una prueba validada ni diagnóstico clínico.**
-- **Profesionales:** tres perfiles completamente ficticios, con filtros por estrés laboral y vida estudiantil, fichas informativas ampliadas, enfoques y trayectorias simuladas. Los retratos son imágenes sintéticas generadas con IA de personajes inexistentes.
-- **Reservas ficticias:** flujo guiado para elegir profesional, personaje de paciente, **teleconsulta o presencial proyectada**, fecha, horario y precio. Las reservas se guardan en **IndexedDB**, se pueden modificar o cancelar y sus cambios aparecen en las vistas de paciente, psicólogo y administrador. Cada personaje puede tener una cita activa a la vez.
+- **Profesionales:** tres perfiles completamente ficticios, con filtros por estrés laboral y vida estudiantil, fichas ampliadas y retratos sintéticos claramente diferenciados. La fotografía de Daniela usa un archivo nuevo para evitar la imagen anterior en caché.
+- **Reservas ficticias:** flujo guiado para elegir profesional, personaje de paciente, **teleconsulta o presencial proyectada**, fecha, horario y precio. Las reservas se guardan en **IndexedDB**, se pueden modificar o cancelar y sus cambios aparecen en las vistas de paciente, psicólogo y administrador. La selección ahora marca los horarios ficticios ocupados y limpia la hora al cambiar día o profesional. Cada personaje puede tener una cita activa a la vez.
 - **Tarifas orientativas (solo demostración):** teleconsulta de 50 minutos $95.000 COP; presencial futura en Bucaramanga de 50 minutos $120.000 COP; tres teleconsultas mensuales $279.000 COP. No se realizan pagos.
 - **Planes demostrativos:** pago por sesión, mensual y corporativo. **No hay cobros reales.**
 - **Empresas:** propuesta B2B y panel con métricas agregadas simuladas.
 - **Mi espacio:** vista personal de demostración, consulta de la reserva y ejercicios generales de respiración.
 - **Tres vistas conectadas a los mismos datos locales:** paciente (cambiar entre tres personajes), psicólogo (agenda por profesional) y administrador (indicadores calculados con reservas ficticias). Selector público **sin autenticación ni permisos reales**.
-- **Fotografías generadas con IA:** siete imágenes AVIF optimizadas para portada, perfiles, teleconsulta, empresas y bienestar estudiantil, claramente señaladas como ilustrativas o ficticias.
+- **Fotografías generadas con IA:** siete imágenes AVIF optimizadas utilizadas en la web, incluyendo un retrato totalmente nuevo para Daniela (`daniela-v2.avif`) claramente distinto al de Laura. Todos los perfiles siguen identificados como personajes ficticios.
 - **Ejercicio de respiración interactivo:** una pausa de un minuto con control de inicio, pausa y reinicio; movimientos discretos y respeto por movimiento reducido.
 - **Recorrido guiado dual:** guía de seis pasos para personas y cinco pasos para empresas, con navegación real entre el chequeo, perfiles, reservas, planes y paneles, sin automatizar decisiones ni pagos.
 - **Accesibilidad y móvil:** menú que se cierra con Escape, salto al contenido con teclado, barra de accesos rápidos en celular, encabezado visible, estados y controles accesibles y transiciones suaves.
 - **Flujo del chequeo a servicios:** resultados educativos con accesos directos a profesionales y tarifas.
+- **Verificación integrada:** desde **Probar roles → Verificar demo en este navegador** puede comprobarse de forma no destructiva la base IndexedDB, las relaciones entre registros y la carga de los tres retratos.
 - **Restablecer demo:** un botón repone pacientes, citas, planes y preferencias ficticios en el navegador antes de cada exposición.
 - **Modo seguro para presentar:** avisos permanentes sobre la naturaleza simulada de los contenidos.
 
@@ -43,12 +44,14 @@ app/
   components/RoleDashboard.tsx  # Paneles con datos de IndexedDB
   components/BreathingExercise.tsx  # Pausa guiada de un minuto
   components/GuidedExperience.tsx  # Recorridos públicos para personas y empresas
+  components/DemoDiagnostics.tsx  # Comprobación local y de imágenes
   lib/demo-db.ts  # Esquema y operaciones locales IndexedDB
 package.json      # Dependencias y scripts
 tsconfig.json     # TypeScript
 netlify.toml      # Configuración de build
 public/images/   # 7 fotografías AVIF generadas con IA
 docs/GUIA_EXPOSICION.md  # Guion de presentación y pruebas de aceptación
+docs/PRUEBAS_V06.md  # Matriz y límites de pruebas v0.6
 ```
 
 ## Ejecutar en local
@@ -111,7 +114,7 @@ Para convertirlo en un servicio comercial real en Colombia: validar habilitació
 
 ## Siguiente fase
 
-- **0.6:** revisión manual con usuarios en computador y móvil, corrección de defectos detectados, modularización restante y pruebas de aceptación reproducibles. Mantener IndexedDB mientras siga siendo una demostración.
+- **0.7 (propuesta):** completar pruebas manuales de v0.6 en teléfonos reales, corregir hallazgos visuales, simplificar el código monolítico y hacer una revisión final de contenidos, accesibilidad y experiencia comercial. Mantener IndexedDB mientras siga siendo una demostración.
 - **Fase comercial futura:** profesionales habilitados, autenticación segura y datos protegidos (Supabase), disponibilidad y cancelaciones reales, cobros integrados, y protocolos clínicos y empresariales bajo asesoría especializada.
 
 > No publicar secretos ni credenciales en este repositorio público.
@@ -135,3 +138,7 @@ Para convertirlo en un servicio comercial real en Colombia: validar habilitació
 - La opción del sistema **Reducir movimiento** desactiva los efectos decorativos. Las animaciones no representan progreso clínico ni promesas de mejora.
 
 Los indicadores de negocio y resultados de bienestar exhibidos son ficticios. No hay servicios psicológicos reales ofrecidos por esta demostración.
+
+## Control de calidad v0.6
+
+Para revisar la versión desde el propio navegador, abre **Probar roles → Verificar demo en este navegador**. La comprobación realiza lecturas de IndexedDB y carga los tres retratos (no modifica citas ni planes). La matriz detallada de aceptación está en [docs/PRUEBAS_V06.md](docs/PRUEBAS_V06.md). **La compilación y las pruebas automáticas de lectura no sustituyen las pruebas manuales de clics y distribución móvil.**

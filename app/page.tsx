@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { RoleDashboard } from "./components/RoleDashboard";
 import { BreathingExercise } from "./components/BreathingExercise";
 import { GuidedExperience, demoFlows, type GuideAudience } from "./components/GuidedExperience";
+import { DemoDiagnostics } from "./components/DemoDiagnostics";
 import {
   specialists, loadDemoSnapshot, findActiveBooking, saveDemoBooking,
   cancelDemoBooking, resetDemoDatabase, setDemoSetting,
@@ -239,7 +240,18 @@ export default function Home() {
   const expandedProfile = specialists.find((person) => person.id === expandedProfileId);
   const visibleSpecialists = specialists.filter((person) => profileFilter === "todos" || person.category === profileFilter);
   const isDateValid = bookingDate !== "" && bookingDate >= localDateISO();
-  const isBookingReady = Boolean(demoSnapshot) && !dbBusy && isDateValid && slotOptions.includes(bookingHour);
+  // Evita mostrar horarios ya reservados por otros personajes en esta misma demo.
+  // La cita propia continúa disponible cuando se está reprogramando.
+  const occupiedSlots = demoSnapshot?.appointments
+    .filter((item) =>
+      item.status === "scheduled" &&
+      item.professionalId === selectedId &&
+      item.date === bookingDate &&
+      item.id !== booking?.id
+    )
+    .map((item) => item.hour) ?? [];
+  const isBookingReady = Boolean(demoSnapshot) && !dbBusy && isDateValid &&
+    slotOptions.includes(bookingHour) && !occupiedSlots.includes(bookingHour);
   const total = answers.reduce((sum, item) => sum + Math.max(item, 0), 0);
   const category = total <= 5 ? "Una oportunidad para seguir cuidándote" : total <= 11 ? "Quizá necesites más momentos de equilibrio" : "Vale la pena prestar atención a tu bienestar";
   const guidance = total <= 5
@@ -451,7 +463,7 @@ export default function Home() {
           {visibleSpecialists.map((person) => <article className="specialist-card" key={person.id}>
             <div className={"specialist-photo " + person.color} aria-label={"Retrato ilustrativo del personaje ficticio " + person.name}>
               <div className="portrait-orbit"/><div className="avatar-bust"><span>{person.initials}</span></div>
-              <img className="specialist-generated-photo" src={"/images/" + (person.id === 1 ? "laura" : person.id === 2 ? "daniela" : "julian") + ".avif?v=2"} alt={"Retrato generado con IA de " + person.name + ", personaje ficticio"} onError={(event) => {event.currentTarget.style.display = "none";}} />
+              <img className="specialist-generated-photo" loading="lazy" decoding="async" width={1122} height={1402} src={person.id === 1 ? "/images/laura.avif" : person.id === 2 ? "/images/daniela-v2.avif" : "/images/julian.avif"} alt={"Retrato generado con IA de " + person.name + ", personaje ficticio"} onError={(event) => {event.currentTarget.style.display = "none";}} />
               <div className="profile-label">PERSONAJE FICTICIO · IA</div>
             </div>
             <div className="specialist-info">
@@ -496,7 +508,7 @@ export default function Home() {
               {(demoSnapshot?.patients ?? []).map(person => <option key={person.id} value={person.id}>{person.label}</option>)}
             </select>
             <label htmlFor="professional">Profesional de ejemplo</label>
-            <select id="professional" value={selectedId} onChange={(event) => {setSelectedId(Number(event.target.value)); setBookedNotice(false);}}>{specialists.map((person) => <option key={person.id} value={person.id}>{person.name} — {person.role}</option>)}</select>
+            <select id="professional" value={selectedId} onChange={(event) => {setSelectedId(Number(event.target.value)); setBookingHour(""); setBookedNotice(false);}}>{specialists.map((person) => <option key={person.id} value={person.id}>{person.name} — {person.role}</option>)}</select>
             <fieldset className="modality-picker">
               <legend>¿Cómo prefieres tu sesión?</legend>
               <div className="modality-options">
@@ -512,11 +524,12 @@ export default function Home() {
             </fieldset>
             <div className="modality-disclaimer"><Info size={16}/><span>{mode === "virtual" ? "Teleconsulta solo como simulación; no se genera videollamada ni se asigna un profesional real." : "Atención presencial propuesta para una etapa futura. No existe sede clínica, dirección o agenda presencial disponible."}</span></div>
             <label htmlFor="date">Elige un día (simulado)</label>
-            <input id="date" type="date" value={bookingDate} min={localDateISO()} onChange={(event) => {setBookingDate(event.target.value); setBookedNotice(false);}}/>
+            <input id="date" type="date" value={bookingDate} min={localDateISO()} onChange={(event) => {setBookingDate(event.target.value); setBookingHour(""); setBookedNotice(false);}}/>
             <label htmlFor="hour">Horario de ejemplo</label>
-            <select id="hour" value={bookingHour} onChange={(event) => {setBookingHour(event.target.value); setBookedNotice(false);}}>
-              <option value="">Selecciona una hora</option>{slotOptions.map((slot) => <option key={slot} value={slot}>{slot}</option>)}
+            <select id="hour" value={bookingHour} onChange={(event) => {setBookingHour(event.target.value); setBookedNotice(false);}} aria-describedby="hour-guidance" disabled={!isDateValid}>
+              <option value="">Selecciona una hora</option>{slotOptions.map((slot) => <option key={slot} value={slot} disabled={occupiedSlots.includes(slot)}>{slot}{occupiedSlots.includes(slot) ? " · Ocupado en la demo" : ""}</option>)}
             </select>
+            <p id="hour-guidance" className="booking-hour-help" role="status">{!isDateValid ? "Selecciona primero un día válido." : occupiedSlots.length > 0 ? occupiedSlots.length + " horario(s) reservado(s) en esta agenda ficticia. Elige uno disponible." : "Los horarios son ilustrativos, sin disponibilidad clínica real."}</p>
             <div className="booking-summary">
               <div><span>Sesión {mode === "virtual" ? "virtual" : "presencial"} · 50 minutos</span><strong>{formatCOP(appointmentPrices[mode])}</strong></div>
               <small>{isBookingReady ? readableDate(bookingDate) + " · " + bookingHour + " · " + specialist.name : "Selecciona fecha y horario para completar el resumen."}</small>
@@ -548,7 +561,8 @@ export default function Home() {
         <RoleDashboard snapshot={demoSnapshot} booking={booking} selectedRole={demoRole} setSelectedRole={selectDemoRole}
           currentPatientId={demoPatientId} onSelectPatient={selectDemoPatient} onReset={resetDemo}
           onViewBooking={() => navigate("espacio")} onChooseProfessional={() => navigate("profesionales")} />
-      </section>}
+        <DemoDiagnostics />
+      </section>
 
       {view === "espacio" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">UN ESPACIO PARA TI</div><h1>Bienvenida a <em>tu momento de calma.</em></h1><p>Un panel personal simulado para descubrir cómo se sentiría usar EquilibraMind cada día.</p></div>
