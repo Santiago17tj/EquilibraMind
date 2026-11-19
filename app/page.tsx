@@ -195,6 +195,12 @@ export default function Home() {
       setJumpToBooking(false);
     }
   }, [jumpToBooking, view]);
+  useEffect(() => {
+    if (view === "profesionales" && expandedProfileId !== null) {
+      const animationFrame = window.requestAnimationFrame(() => document.getElementById("profile-detail")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+      return () => window.cancelAnimationFrame(animationFrame);
+    }
+  }, [expandedProfileId, view]);
   const resetQuiz = () => { setAnswers(Array(questions.length).fill(-1)); setQuizStep(0); setQuizFinished(false); };
   const choosePlan = (name: string) => { setSelectedPlan(name); navigate("espacio"); };
 
@@ -315,7 +321,7 @@ export default function Home() {
             </div>
           </article>)}
         </div>
-        {expandedProfile && <section className="profile-detail" aria-label={"Ficha ficticia de " + expandedProfile.name}>
+        {expandedProfile && <section id="profile-detail" className="profile-detail" aria-label={"Ficha ficticia de " + expandedProfile.name}>
           <div className="profile-detail-top">
             <span className={"mini-avatar " + expandedProfile.color}>{expandedProfile.initials}</span>
             <div><span className="eyebrow">FICHA DEL PROFESIONAL · DEMOSTRACIÓN</span><h2>{expandedProfile.name}</h2><p>{expandedProfile.role} · {expandedProfile.audience}</p></div>
