@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { RoleDashboard, type DemoRole } from "./components/RoleDashboard";
 import {
   Activity, ArrowLeft, ArrowRight, ArrowUpRight, BarChart3, BrainCircuit,
   Building2, CalendarCheck2, CalendarDays, Check, CheckCircle2, ChevronDown,
@@ -9,7 +10,7 @@ import {
   UsersRound, Wind, Video, MapPin, RotateCcw, GraduationCap, BriefcaseBusiness, X
 } from "lucide-react";
 
-type Section = "inicio" | "chequeo" | "profesionales" | "empresas" | "planes" | "espacio";
+type Section = "inicio" | "chequeo" | "profesionales" | "empresas" | "planes" | "espacio" | "demo";
 type VisitMode = "virtual" | "presencial";
 type Booking = { name: string; role: string; date: string; hour: string; mode?: VisitMode; price?: number };
 const nav: { id: Section; label: string }[] = [
@@ -101,6 +102,7 @@ function BrandFooter({ navigate }: { navigate: (v: Section) => void }) {
         <h4>EquilibraMind</h4>
         <button onClick={() => navigate("empresas")}>Soluciones empresariales</button>
         <button onClick={() => navigate("espacio")}>Mi espacio de prueba</button>
+        <button onClick={() => navigate("demo")}>Paneles por rol</button>
         <span>Desarrollado como proyecto académico · Colombia</span>
       </div>
     </div>
@@ -110,6 +112,7 @@ function BrandFooter({ navigate }: { navigate: (v: Section) => void }) {
 
 export default function Home() {
   const [view, setView] = useState<Section>("inicio");
+  const [demoRole, setDemoRole] = useState<DemoRole>("paciente");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [answers, setAnswers] = useState<number[]>(Array(questions.length).fill(-1));
   const [quizStep, setQuizStep] = useState(0);
@@ -212,9 +215,10 @@ export default function Home() {
         <nav className={mobileOpen ? "nav nav-open" : "nav"} aria-label="Navegación principal">
           {nav.map((entry) => <button key={entry.id} className={view === entry.id ? "nav-link active" : "nav-link"} onClick={() => navigate(entry.id)}>{entry.label}</button>)}
           <button className="mobile-space-link" onClick={() => navigate("espacio")}>Mi espacio</button>
+          <button className="mobile-space-link" onClick={() => navigate("demo")}>Probar roles</button>
         </nav>
         <div className="header-actions">
-          <button className="button button-ghost desktop-space" onClick={() => navigate("espacio")}><UserRound size={16}/> Mi espacio</button>
+          <button className="button button-ghost desktop-space" onClick={() => navigate("demo")}><UserRound size={16}/> Probar roles</button>
           <button className="button button-primary header-cta" onClick={() => navigate("chequeo")}>Empezar <ArrowUpRight size={16}/></button>
           <button className="menu-toggle" onClick={() => setMobileOpen(!mobileOpen)} aria-label={mobileOpen ? "Cerrar menú" : "Abrir menú"} aria-expanded={mobileOpen}>{mobileOpen ? <X /> : <Menu />}</button>
         </div>
@@ -391,6 +395,8 @@ export default function Home() {
           <article className="plan-card"><div className="plan-kicker">BIENESTAR COLECTIVO</div><h3>Empresas</h3><p>Un modelo flexible para programas de bienestar y cultura organizacional.</p><div className="price price-custom">A medida <small>Propuesta comercial · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Talleres psicoeducativos</div><div className="plan-item"><Check size={17}/> Recursos para trabajadores</div><div className="plan-item"><Check size={17}/> Panel de indicadores agregados</div><button className="button button-outline button-full" onClick={() => navigate("empresas")}>Explorar empresas <ArrowRight size={16}/></button></article>
         </div><DemoNote />
       </section>}
+
+      {view === "demo" && <section className="inner-section section-width"><RoleDashboard booking={booking} selectedRole={demoRole} setSelectedRole={setDemoRole} onViewBooking={() => navigate("espacio")} onChooseProfessional={() => navigate("profesionales")}/></section>}
 
       {view === "espacio" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">UN ESPACIO PARA TI</div><h1>Bienvenida a <em>tu momento de calma.</em></h1><p>Un panel personal simulado para descubrir cómo se sentiría usar EquilibraMind cada día.</p></div>
