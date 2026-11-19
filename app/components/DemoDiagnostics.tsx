@@ -11,18 +11,38 @@ type DiagnosticResult = {
 };
 
 const portraits = [
-  { name: "Laura", path: "/images/laura.avif" },
-  { name: "Daniela", path: "/images/daniela-v2.avif" },
+  { name: "Laura", path: "/images/laura-v06.avif" },
+  { name: "Daniela", path: "/images/daniela-v06.avif" },
   { name: "Julián", path: "/images/julian.avif" }
 ];
 
-function imageReady(path: string): Promise<{ok: boolean; pixels: number}> {
+type ImageTest = { ok: boolean; pixels: number; rgb: number[] | null };
+function imageReady(path: string): Promise<ImageTest> {
   return new Promise((resolve) => {
     const img = new window.Image();
-    img.onload = () => resolve({ok: img.naturalWidth >= 800 && img.naturalHeight >= 800, pixels: img.naturalWidth});
-    img.onerror = () => resolve({ok: false, pixels: 0});
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 20;
+        canvas.height = 20;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+        if (!ctx) return resolve({ ok: false, pixels: img.naturalWidth, rgb: null });
+        ctx.drawImage(img, 0, 0, 20, 20);
+        const pixels = ctx.getImageData(0, 0, 20, 20).data;
+        const rgb: number[] = [];
+        for (let i = 0; i < pixels.length; i += 4) rgb.push(pixels[i], pixels[i + 1], pixels[i + 2]);
+        resolve({ ok: img.naturalWidth >= 800 && img.naturalHeight >= 800, pixels: img.naturalWidth, rgb });
+      } catch {
+        resolve({ ok: false, pixels: img.naturalWidth, rgb: null });
+      }
+    };
+    img.onerror = () => resolve({ ok: false, pixels: 0, rgb: null });
     img.src = path;
   });
+}
+function averagePixelDifference(a: ImageTest, b: ImageTest): number {
+  if (!a.rgb || !b.rgb || a.rgb.length !== b.rgb.length) return 0;
+  return a.rgb.reduce((sum, value, i) => sum + Math.abs(value - b.rgb![i]), 0) / a.rgb.length;
 }
 
 export function DemoDiagnostics() {
@@ -62,10 +82,21 @@ export function DemoDiagnostics() {
     const images = await Promise.all(portraits.map(async (portrait) => ({
       ...portrait, result: await imageReady(portrait.path)
     })));
+    const imagesLoaded = images.every((item) => item.result.ok);
     checks.push({
-      name: "Retratos diferenciados",
-      ok: seenPaths.size === portraits.length && images.every((item) => item.result.ok),
-      detail: images.map((item) => `${item.name}: ${item.result.ok ? item.result.pixels + " px" : "no cargó"}`).join(" · ")
+      name: "Resolución de retratos",
+      ok: imagesLoaded,
+      detail: images.map((item) => item.name + ": " + (item.result.ok ? item.result.pixels + " px" : "no cargó")).join(" · ")
+    });
+    const distances = [
+      averagePixelDifference(images[0].result, images[1].result),
+      averagePixelDifference(images[0].result, images[2].result),
+      averagePixelDifference(images[1].result, images[2].result)
+    ];
+    checks.push({
+      name: "Contenido visual distinto",
+      ok: imagesLoaded && seenPaths.size === portraits.length && distances.every((value) => value > 18),
+      detail: imagesLoaded ? "Las miniaturas tienen contenido visual diferente." : "Primero deben cargarse correctamente los tres retratos."
     });
     setResults(checks);
     setLastChecked(new Intl.DateTimeFormat("es-CO", { hour:"2-digit",minute:"2-digit" }).format(new Date()));
@@ -91,7 +122,7 @@ export function DemoDiagnostics() {
           <div><b>{item.name}</b><small>{item.detail}</small></div>
         </div>)}
       </div>
-      <small><ImageIcon size={14}/> La prueba verifica carga y tamaño de archivos, no certifica calidad visual, accesibilidad ni consultas reales.</small>
+      <small><ImageIcon size={14}/> La prueba compara carga, resolución y píxeles, pero no certifica identidad, accesibilidad ni consultas reales.</small>
     </div>}
   </section>;
 }

@@ -12,19 +12,19 @@ Proyecto web funcional de demostración, con diseño **wellbeing premium** (verd
 
 - **Inicio comercial responsive:** propuesta de valor y recorrido de bienvenida.
 - **Mi bienestar:** cuestionario orientativo de seis preguntas, con reflexión educativa y recomendaciones generales. **No es una prueba validada ni diagnóstico clínico.**
-- **Profesionales:** tres perfiles completamente ficticios, con filtros por estrés laboral y vida estudiantil, fichas ampliadas y retratos sintéticos claramente diferenciados. La fotografía de Daniela usa un archivo nuevo para evitar la imagen anterior en caché.
+- **Profesionales:** tres perfiles completamente ficticios, con filtros por estrés laboral y vida estudiantil, fichas ampliadas y retratos sintéticos claramente diferenciados. La fotografía de Daniela usa dos archivos nuevos para evitar imágenes antiguas del caché.
 - **Reservas ficticias:** flujo guiado para elegir profesional, personaje de paciente, **teleconsulta o presencial proyectada**, fecha, horario y precio. Las reservas se guardan en **IndexedDB**, se pueden modificar o cancelar y sus cambios aparecen en las vistas de paciente, psicólogo y administrador. La selección ahora marca los horarios ficticios ocupados y limpia la hora al cambiar día o profesional. Cada personaje puede tener una cita activa a la vez.
 - **Tarifas orientativas (solo demostración):** teleconsulta de 50 minutos $95.000 COP; presencial futura en Bucaramanga de 50 minutos $120.000 COP; tres teleconsultas mensuales $279.000 COP. No se realizan pagos.
 - **Planes demostrativos:** pago por sesión, mensual y corporativo. **No hay cobros reales.**
 - **Empresas:** propuesta B2B y panel con métricas agregadas simuladas.
 - **Mi espacio:** vista personal de demostración, consulta de la reserva y ejercicios generales de respiración.
 - **Tres vistas conectadas a los mismos datos locales:** paciente (cambiar entre tres personajes), psicólogo (agenda por profesional) y administrador (indicadores calculados con reservas ficticias). Selector público **sin autenticación ni permisos reales**.
-- **Fotografías generadas con IA:** siete imágenes AVIF optimizadas utilizadas en la web, incluyendo un retrato totalmente nuevo para Daniela (`daniela-v2.avif`) claramente distinto al de Laura. Todos los perfiles siguen identificados como personajes ficticios.
+- **Fotografías generadas con IA:** siete imágenes AVIF optimizadas utilizadas en la web, incluyendo dos retratos nuevos e independientes (`laura-v06.avif` y `daniela-v06.avif`) con personas claramente diferenciadas. Todos los perfiles siguen identificados como personajes ficticios.
 - **Ejercicio de respiración interactivo:** una pausa de un minuto con control de inicio, pausa y reinicio; movimientos discretos y respeto por movimiento reducido.
 - **Recorrido guiado dual:** guía de seis pasos para personas y cinco pasos para empresas, con navegación real entre el chequeo, perfiles, reservas, planes y paneles, sin automatizar decisiones ni pagos.
 - **Accesibilidad y móvil:** menú que se cierra con Escape, salto al contenido con teclado, barra de accesos rápidos en celular, encabezado visible, estados y controles accesibles y transiciones suaves.
 - **Flujo del chequeo a servicios:** resultados educativos con accesos directos a profesionales y tarifas.
-- **Verificación integrada:** desde **Probar roles → Verificar demo en este navegador** puede comprobarse de forma no destructiva la base IndexedDB, las relaciones entre registros y la carga de los tres retratos.
+- **Verificación integrada:** desde **Probar roles → Verificar demo en este navegador** puede comprobarse de forma no destructiva la base IndexedDB, las relaciones entre registros y la resolución y diferencia de contenido entre los retratos.
 - **Restablecer demo:** un botón repone pacientes, citas, planes y preferencias ficticios en el navegador antes de cada exposición.
 - **Modo seguro para presentar:** avisos permanentes sobre la naturaleza simulada de los contenidos.
 
@@ -141,4 +141,4 @@ Los indicadores de negocio y resultados de bienestar exhibidos son ficticios. No
 
 ## Control de calidad v0.6
 
-Para revisar la versión desde el propio navegador, abre **Probar roles → Verificar demo en este navegador**. La comprobación realiza lecturas de IndexedDB y carga los tres retratos (no modifica citas ni planes). La matriz detallada de aceptación está en [docs/PRUEBAS_V06.md](docs/PRUEBAS_V06.md). **La compilación y las pruebas automáticas de lectura no sustituyen las pruebas manuales de clics y distribución móvil.**
+Para revisar la versión desde el propio navegador, abre **Probar roles → Verificar demo en este navegador**. La comprobación realiza lecturas de IndexedDB y carga los retratos, compara su resolución y comprueba diferencias de píxeles (no modifica citas ni planes). La matriz detallada de aceptación está en [docs/PRUEBAS_V06.md](docs/PRUEBAS_V06.md). **La compilación y las pruebas automáticas de lectura no sustituyen las pruebas manuales de clics y distribución móvil.**

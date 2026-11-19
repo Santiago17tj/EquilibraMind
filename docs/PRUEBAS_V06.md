@@ -13,18 +13,18 @@
 
 ## Cambios verificados mediante revisión de código
 
-- El retrato de **Daniela Ríos** se encuentra en `/images/daniela-v2.avif`, diferente de `/images/laura.avif` (Laura Méndez) y `/images/julian.avif` (Julián Herrera).
+- El retrato de **Daniela Ríos** se encuentra en `/images/daniela-v06.avif`, diferente de `/images/laura-v06.avif` (Laura Méndez) y `/images/julian.avif` (Julián Herrera).
 - Los tres retratos corresponden a **personajes sintéticos generados con IA**, no a personas habilitadas para prestar atención.
 - La agenda deshabilita los horarios ya usados por otras reservas ficticias del mismo profesional y fecha, sin bloquear la cita propia al reprogramarla.
 - Cambiar el profesional o la fecha borra la hora anterior para evitar confirmar una selección desactualizada.
-- En **Probar roles → Verificar demo en este navegador** se ejecutan comprobaciones no destructivas de IndexedDB, relaciones entre registros y carga/dimensiones de imágenes.
+- En **Probar roles → Verificar demo en este navegador** se ejecutan comprobaciones no destructivas de IndexedDB, relaciones entre registros y carga, dimensiones y diferencias visuales de miniaturas.
 
 ## Matriz para probar manualmente
 
 | ID | Acción en el navegador | Resultado esperado |
 |---|---|---|
 | V06-01 | Abrir Profesionales | Laura, Daniela y Julián tienen imágenes distintas y nítidas |
-| V06-02 | Abrir foto de Daniela en Chrome/Edge | Carga `daniela-v2.avif` correctamente |
+| V06-02 | Abrir foto de Daniela en Chrome/Edge | Carga `daniela-v06.avif` correctamente |
 | V06-03 | Elegir el mismo profesional, fecha y hora de una cita ya existente | La hora aparece como ocupada y no puede seleccionarse |
 | V06-04 | Cambiar de fecha después de elegir una hora | La hora se limpia y debe volver a elegirse |
 | V06-05 | Cambiar de profesional después de elegir una hora | La hora se limpia y debe volver a elegirse |
@@ -70,3 +70,9 @@
 - La disponibilidad de citas es **simulada**, no integra agendas profesionales reales.
 - El cuestionario no es una escala clínica validada.
 - Antes de prestar atención real harían falta regulación aplicable, autorización de profesionales, consentimiento informado, privacidad, auditoría, respuesta a crisis y un backend seguro.
+
+## Revisión adicional de retratos — v0.6.1
+
+- Se publican dos retratos independientes de alta calidad con URL nuevas: `laura-v06.avif` y `daniela-v06.avif`, para evitar que el navegador reutilice imágenes antiguas.
+- En **Probar roles → Verificar demo** se comprueba carga y dimensiones de los tres retratos, y que sus miniaturas de 20 × 20 píxeles no sean iguales o casi iguales. Esto no certifica identidad ni sustituye revisión humana.
+- **Pendiente de prueba manual:** confirmar encuadres y estética en Edge de escritorio y móvil, hacer clic en los recorridos, comprobar persistencia en IndexedDB y evaluar accesibilidad real. La compilación no equivale a superar esas pruebas.

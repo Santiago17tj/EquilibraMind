@@ -463,7 +463,7 @@ export default function Home() {
           {visibleSpecialists.map((person) => <article className="specialist-card" key={person.id}>
             <div className={"specialist-photo " + person.color} aria-label={"Retrato ilustrativo del personaje ficticio " + person.name}>
               <div className="portrait-orbit"/><div className="avatar-bust"><span>{person.initials}</span></div>
-              <img className="specialist-generated-photo" loading="lazy" decoding="async" width={1122} height={1402} src={person.id === 1 ? "/images/laura.avif" : person.id === 2 ? "/images/daniela-v2.avif" : "/images/julian.avif"} alt={"Retrato generado con IA de " + person.name + ", personaje ficticio"} onError={(event) => {event.currentTarget.style.display = "none";}} />
+              <img className="specialist-generated-photo" loading="lazy" decoding="async" width={980} height={1225} src={person.id === 1 ? "/images/laura-v06.avif" : person.id === 2 ? "/images/daniela-v06.avif" : "/images/julian.avif"} alt={"Retrato generado con IA de " + person.name + ", personaje ficticio"} onError={(event) => {event.currentTarget.style.display = "none";}} />
               <div className="profile-label">PERSONAJE FICTICIO · IA</div>
             </div>
             <div className="specialist-info">
