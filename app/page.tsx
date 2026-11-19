@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { RoleDashboard, type DemoRole } from "./components/RoleDashboard";
+import { RoleDashboard } from "./components/RoleDashboard";
+import {
+  specialists, loadDemoSnapshot, findActiveBooking, saveDemoBooking,
+  cancelDemoBooking, resetDemoDatabase, setDemoSetting,
+  type DemoSnapshot, type DemoRole, type VisitMode
+} from "./lib/demo-db";
 import {
   Activity, ArrowLeft, ArrowRight, ArrowUpRight, BarChart3, BrainCircuit,
   Building2, CalendarCheck2, CalendarDays, Check, CheckCircle2, ChevronDown,
@@ -11,37 +16,12 @@ import {
 } from "lucide-react";
 
 type Section = "inicio" | "chequeo" | "profesionales" | "empresas" | "planes" | "espacio" | "demo";
-type VisitMode = "virtual" | "presencial";
-type Booking = { name: string; role: string; date: string; hour: string; mode?: VisitMode; price?: number };
 const nav: { id: Section; label: string }[] = [
   { id: "inicio", label: "Inicio" },
   { id: "chequeo", label: "Mi bienestar" },
   { id: "profesionales", label: "Profesionales" },
   { id: "empresas", label: "Para empresas" },
   { id: "planes", label: "Planes" }
-];
-const specialists = [
-  {
-    id: 1, name: "Laura Méndez", role: "Psicología clínica", focus: "Estrés laboral y regulación emocional",
-    initials: "LM", color: "peach", experience: "6 años · Trayectoria ficticia", category: "laboral",
-    audience: "Personas adultas", approaches: ["Manejo del estrés", "Regulación emocional", "Autocuidado"],
-    bio: "Perfil creado para ilustrar un acompañamiento centrado en la escucha, los hábitos saludables y la relación entre emociones y trabajo.",
-    education: "Formación clínica simulada para fines educativos."
-  },
-  {
-    id: 2, name: "Daniela Ríos", role: "Bienestar estudiantil", focus: "Ansiedad académica y hábitos de estudio",
-    initials: "DR", color: "lilac", experience: "4 años · Trayectoria ficticia", category: "estudiantil",
-    audience: "Estudiantes y jóvenes adultos", approaches: ["Estrés académico", "Organización del tiempo", "Hábitos de descanso"],
-    bio: "Perfil ficticio enfocado en desafíos estudiantiles: equilibrar exámenes, proyectos, exigencias personales y tiempo de recuperación.",
-    education: "Formación en bienestar estudiantil simulada."
-  },
-  {
-    id: 3, name: "Julián Herrera", role: "Psicología organizacional", focus: "Prevención del burnout y equilibrio laboral",
-    initials: "JH", color: "sage", experience: "8 años · Trayectoria ficticia", category: "laboral",
-    audience: "Profesionales y equipos de trabajo", approaches: ["Prevención del agotamiento", "Límites saludables", "Bienestar laboral"],
-    bio: "Perfil de demostración orientado a reconocer factores de sobrecarga y promover prácticas saludables en equipos y organizaciones.",
-    education: "Formación organizacional simulada para la presentación."
-  }
 ];
 type ProfileFilter = "todos" | "laboral" | "estudiantil";
 const profileFilters: { value: ProfileFilter; label: string }[] = [
@@ -125,7 +105,10 @@ export default function Home() {
   const [bookingDate, setBookingDate] = useState("");
   const [bookingHour, setBookingHour] = useState("");
   const [mode, setMode] = useState<VisitMode>("virtual");
-  const [booking, setBooking] = useState<Booking | null>(null);
+  const [demoSnapshot, setDemoSnapshot] = useState<DemoSnapshot | null>(null);
+  const [demoPatientId, setDemoPatientId] = useState("valentina");
+  const [dbError, setDbError] = useState("");
+  const [dbBusy, setDbBusy] = useState(false);
   const [bookedNotice, setBookedNotice] = useState(false);
   const [companyPreview, setCompanyPreview] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -164,16 +147,65 @@ export default function Home() {
   }, [view, profileFilter, expandedProfileId, companyPreview, demoRole, quizFinished]);
 
   useEffect(() => {
-    try {
-      const previous = window.localStorage.getItem("equilibramind-demo-booking-v1");
-      if (previous) {
-        const parsed = JSON.parse(previous) as Booking;
-        if (parsed && typeof parsed.name === "string" && typeof parsed.date === "string") setBooking(parsed);
+    let active = true;
+    loadDemoSnapshot().then((snapshot) => {
+      if (!active) return;
+      setDemoSnapshot(snapshot);
+      const patientId = snapshot.settings.patientId;
+      if (snapshot.patients.some((patient) => patient.id === patientId)) setDemoPatientId(patientId);
+      if (["paciente", "psicologo", "administrador"].includes(snapshot.settings.role)) {
+        setDemoRole(snapshot.settings.role as DemoRole);
       }
-    } catch {
-      // Local demo storage is optional.
-    }
+      setDbError("");
+      // El almacenamiento antiguo de una sola cita ya no es la fuente de datos.
+      try { window.localStorage.removeItem("equilibramind-demo-booking-v1"); } catch {}
+    }).catch((error: unknown) => {
+      if (active) setDbError(error instanceof Error ? error.message : "No se pudo abrir la base local.");
+    });
+    return () => { active = false; };
   }, []);
+
+  const refreshDemo = async () => {
+    const updated = await loadDemoSnapshot();
+    setDemoSnapshot(updated);
+    return updated;
+  };
+  const selectDemoPatient = async (patientId: string) => {
+    if (!demoSnapshot?.patients.some((patient) => patient.id === patientId)) return;
+    setDemoPatientId(patientId);
+    setSelectedPlan(demoSnapshot.settings[`plan:${patientId}`] ?? null);
+    setCancelNotice(false);
+    setBookedNotice(false);
+    try {
+      await setDemoSetting("patientId", patientId);
+      await refreshDemo();
+      setDbError("");
+    } catch (error) {
+      setDbError(error instanceof Error ? error.message : "No se pudo guardar el perfil.");
+    }
+  };
+  const selectDemoRole = (role: DemoRole) => {
+    setDemoRole(role);
+    setDemoSetting("role", role).catch((error: unknown) =>
+      setDbError(error instanceof Error ? error.message : "No se pudo guardar el rol.")
+    );
+  };
+  const resetDemo = async () => {
+    if (!window.confirm("¿Restablecer todos los personajes, planes y citas de prueba en ESTE navegador? Se perderán los cambios de esta demostración.")) return;
+    setDbBusy(true); setDbError("");
+    try {
+      const initial = await resetDemoDatabase();
+      setDemoSnapshot(initial);
+      setDemoPatientId("valentina");
+      setDemoRole("paciente");
+      setSelectedPlan(null);
+      setBookingDate(""); setBookingHour("");
+      setCancelNotice(false); setBookedNotice(false);
+      try { window.localStorage.removeItem("equilibramind-demo-booking-v1"); } catch {}
+    } catch (error) {
+      setDbError(error instanceof Error ? error.message : "No se pudo restablecer la demo.");
+    } finally { setDbBusy(false); }
+  };
 
   const navigate = (v: Section) => {
     setView(v);
@@ -181,11 +213,13 @@ export default function Home() {
     setBookedNotice(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
+  const booking = demoSnapshot ? findActiveBooking(demoSnapshot, demoPatientId) : null;
+  const currentDemoPatient = demoSnapshot?.patients.find((person) => person.id === demoPatientId) ?? null;
   const specialist = specialists.find((person) => person.id === selectedId) ?? specialists[0];
   const expandedProfile = specialists.find((person) => person.id === expandedProfileId);
   const visibleSpecialists = specialists.filter((person) => profileFilter === "todos" || person.category === profileFilter);
   const isDateValid = bookingDate !== "" && bookingDate >= localDateISO();
-  const isBookingReady = isDateValid && slotOptions.includes(bookingHour);
+  const isBookingReady = Boolean(demoSnapshot) && !dbBusy && isDateValid && slotOptions.includes(bookingHour);
   const total = answers.reduce((sum, item) => sum + Math.max(item, 0), 0);
   const category = total <= 5 ? "Una oportunidad para seguir cuidándote" : total <= 11 ? "Quizá necesites más momentos de equilibrio" : "Vale la pena prestar atención a tu bienestar";
   const guidance = total <= 5
@@ -193,13 +227,16 @@ export default function Home() {
     : total <= 11
       ? "Varias de tus respuestas sugieren que las responsabilidades podrían estar ocupando demasiado espacio. Prueba a revisar tus límites y apoyos."
       : "Has señalado señales frecuentes de cansancio o sobrecarga. Considera hablar con una persona profesional habilitada y buscar apoyo en tu entorno.";
-  const saveBooking = () => {
+  const saveBooking = async () => {
     if (!isBookingReady) return;
-    const next: Booking = { name: specialist.name, role: specialist.role, date: bookingDate, hour: bookingHour, mode, price: appointmentPrices[mode] };
-    setBooking(next);
-    setBookedNotice(true);
-    setCancelNotice(false);
-    try { window.localStorage.setItem("equilibramind-demo-booking-v1", JSON.stringify(next)); } catch {}
+    setDbBusy(true); setDbError("");
+    try {
+      await saveDemoBooking(demoPatientId, { professionalId: specialist.id, date: bookingDate, hour: bookingHour, mode });
+      await refreshDemo();
+      setBookedNotice(true); setCancelNotice(false);
+    } catch (error) {
+      setDbError(error instanceof Error ? error.message : "No se pudo guardar la reserva ficticia.");
+    } finally { setDbBusy(false); }
   };
   const chooseSpecialist = (id: number) => {
     setSelectedId(id);
@@ -218,12 +255,16 @@ export default function Home() {
     setJumpToBooking(true);
     navigate("profesionales");
   };
-  const cancelBooking = () => {
-    if (!booking || !window.confirm("¿Cancelar la reserva de demostración? Solo se eliminará de este navegador.")) return;
-    setBooking(null);
-    setBookedNotice(false);
-    setCancelNotice(true);
-    try { window.localStorage.removeItem("equilibramind-demo-booking-v1"); } catch {}
+  const cancelBooking = async () => {
+    if (!booking || !window.confirm("¿Cancelar esta reserva ficticia? El cambio quedará guardado en ESTE navegador.")) return;
+    setDbBusy(true); setDbError("");
+    try {
+      await cancelDemoBooking(demoPatientId, booking.id);
+      await refreshDemo();
+      setBookedNotice(false); setCancelNotice(true);
+    } catch (error) {
+      setDbError(error instanceof Error ? error.message : "No se pudo cancelar.");
+    } finally { setDbBusy(false); }
   };
   useEffect(() => {
     if (view === "profesionales" && jumpToBooking) {
@@ -238,7 +279,16 @@ export default function Home() {
     }
   }, [expandedProfileId, view]);
   const resetQuiz = () => { setAnswers(Array(questions.length).fill(-1)); setQuizStep(0); setQuizFinished(false); };
-  const choosePlan = (name: string) => { setSelectedPlan(name); navigate("espacio"); };
+  const choosePlan = async (name: string) => {
+    setSelectedPlan(name);
+    navigate("espacio");
+    try {
+      await setDemoSetting(`plan:${demoPatientId}`, name);
+      await refreshDemo();
+    } catch (error) {
+      setDbError(error instanceof Error ? error.message : "No se pudo guardar el plan de demostración.");
+    }
+  };
 
   return <div className="site-shell">
     <div className="top-strip"><Leaf size={13}/> Un espacio para cuidar de ti, a tu ritmo <span>·</span> Plataforma de demostración</div>
