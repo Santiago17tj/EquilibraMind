@@ -426,3 +426,73 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
  .modality-option-body small { flex: 1 1 100%; margin: 2px 0; }
  .modality-option-body b { margin-top: 0; }
 }
+
+/* Versión 0.2 — directorio y agenda guiada */
+.profile-filter-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin: 0 0 30px; }
+.filter-chip { border: 1px solid #cedfcf; color: #53725d; background: #fffdfa; border-radius: 999px; padding: 11px 18px; font-size: 12px; font-weight: 700; transition: background .2s, border-color .2s; }
+.filter-chip:hover { background: #e9f3e9; }
+.filter-chip.active { background: var(--pine); border-color: var(--pine); color: #fff; }
+.specialist-card { display: flex; flex-direction: column; }
+.specialist-info { flex: 1; display: flex; flex-direction: column; }
+.specialist-info > p { min-height: 44px; }
+.specialist-photo { isolation: isolate; }
+.specialist-photo:after { content: ""; position: absolute; left: 10%; bottom: -92px; width: 80%; height: 165px; background: rgba(255,255,255,.13); border-radius: 50%; }
+.avatar-bust { height: 148px; width: 148px; border-radius: 60% 60% 32% 32%; background: rgba(255,255,255,.31); display: grid; place-items: center; position: relative; z-index: 2; box-shadow: 0 15px 28px rgba(63,77,68,.09), inset 0 0 0 2px rgba(255,255,255,.2); }
+.avatar-bust:before { content: ""; position: absolute; top: -19px; left: 36px; width: 75px; height: 75px; border-radius: 50%; background: rgba(255,255,255,.25); }
+.avatar-bust span { font-family: "Playfair Display", Georgia, serif; font-size: 46px; font-weight: 500; position: relative; z-index: 2; text-shadow: 0 1px rgba(255,255,255,.35); }
+.profile-mini-tags { display: flex; align-items: flex-start; flex-wrap: wrap; gap: 6px; margin: 3px 0 8px; }
+.profile-mini-tags span { display: inline-block; background: #f1f5ed; color: #64816c; font-size: 10px; font-weight: 600; border-radius: 20px; padding: 6px 9px; }
+.specialist-bottom { margin-top: auto; padding: 14px 0; }
+.profile-price-row { display: flex; justify-content: space-between; align-items: center; gap: 7px; border-top: 1px solid #e6eae3; padding: 17px 0; }
+.profile-price-row span { color: #79867b; font-size: 10px; }
+.profile-price-row strong { color: #426b51; font-size: 16px; letter-spacing: -.04em; white-space: nowrap; }
+.profile-card-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.profile-card-actions .button { flex: 1 1 110px; padding: 12px 11px; font-size: 11px; }
+.profile-detail { background: #fffefa; border: 1px solid #dce8dc; border-radius: 21px; padding: 30px 33px; margin-top: 25px; box-shadow: 0 14px 30px rgba(52,85,60,.04); scroll-margin-top: 30px; }
+.profile-detail-top { display: flex; align-items: center; gap: 15px; border-bottom: 1px solid #e6ebe4; padding-bottom: 21px; position: relative; }
+.profile-detail-top .mini-avatar { width: 62px; height: 62px; flex: 0 0 62px; font-size: 22px; border: 2px solid #fff; }
+.profile-detail-top h2 { font-size: 30px; line-height: 1.2; margin: 4px 0; }
+.profile-detail-top p { color: #7b8c7d; font-size: 12px; margin: 0; }
+.profile-close { border: 0; background: #edf3ec; border-radius: 50%; padding: 8px; color: #587761; display: grid; place-items: center; margin-left: auto; }
+.profile-close:hover { background: #e1eae0; }
+.profile-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 38px; padding: 27px 0; }
+.profile-detail-grid h3 { font-size: 15px; margin: 0 0 12px; }
+.profile-detail-grid p { color: #758376; font-size: 12px; line-height: 1.9; }
+.profile-education { display: flex; align-items: center; gap: 9px; background: #f4f7f2; padding: 12px 14px; border-radius: 9px; }
+.profile-education svg { flex: 0 0 17px; color: #648a6d; }
+.profile-detail-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 19px; }
+.profile-detail-tags span { padding: 9px 11px; background: #e8f2e7; color: #50785b; border-radius: 9px; font-size: 11px; display: flex; align-items: center; gap: 6px; }
+.profile-detail-grid .profile-meta { display: flex; align-items: flex-start; gap: 9px; margin: 10px 0; line-height: 1.5; }
+.profile-meta svg { color: #5b8664; flex: 0 0 17px; }
+.profile-detail-bottom { border-top: 1px solid #e6ebe4; padding-top: 21px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px; }
+.profile-detail-bottom > span { display: flex; align-items: center; gap: 9px; color: #8b998b; font-size: 10px; max-width: 440px; line-height: 1.6; }
+.profile-detail-bottom > span svg { flex: 0 0 16px; }
+.booking-intro { align-self: center; }
+.booking-steps { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 8px; }
+.step-pill { border-radius: 40px; border: 1px solid #c8d9ca; background: rgba(255,255,255,.48); color: #688071; font-size: 10px; font-weight: 700; padding: 9px 11px; display: inline-flex; gap: 6px; align-items: center; }
+.step-pill:first-child { border-color: #93b296; background: #d1e3d2; color: #496f52; }
+.booking-soft-warning { display: flex; align-items: flex-start; gap: 10px; margin-top: 31px; color: #688371; font-size: 11px; line-height: 1.8; }
+.booking-soft-warning svg { flex: 0 0 18px; margin-top: 2px; }
+.appointment-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; }
+.appointment-actions .button { white-space: normal; text-align: center; }
+.cancel-button { border-color: #e4cdca; background: #fff8f6; color: #95615a; }
+.cancel-button:hover { background: #f9eeeb; }
+.cancel-notice { display: flex; align-items: center; gap: 9px; color: #477354 !important; background: #eaf4e9; border-radius: 9px; padding: 12px; }
+@media (max-width: 900px) {
+ .profile-card-actions { flex-direction: column; }
+ .profile-card-actions .button { flex-basis: auto; }
+ .profile-detail-grid { gap: 24px; }
+}
+@media (max-width: 620px) {
+ .profile-filter-row { justify-content: flex-start; }
+ .filter-chip { font-size: 11px; padding: 10px 12px; }
+ .profile-detail { padding: 23px 20px; }
+ .profile-detail-top h2 { font-size: 25px; }
+ .profile-detail-grid { grid-template-columns: 1fr; gap: 19px; }
+ .profile-detail-bottom { align-items: stretch; }
+ .profile-detail-bottom .button { width: 100%; }
+ .profile-card-actions { flex-direction: row; }
+ .booking-steps { gap: 6px; }
+ .step-pill { padding: 8px; font-size: 9px; }
+ .appointment-actions { flex-direction: column; align-items: stretch; }
+}
