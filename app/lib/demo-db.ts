@@ -194,7 +194,7 @@ export function findActiveBooking(snapshot: DemoSnapshot, patientId: string): De
   return snapshot.appointments.find((item) => item.patientId === patientId && item.status === "scheduled") ?? null;
 }
 
-export async function setDemoSetting(key: "patientId" | "role", value: string): Promise<void> {
+export async function setDemoSetting(key: "patientId" | "role" | `plan:${string}`, value: string): Promise<void> {
   const db = await openDatabase();
   try {
     const tx = db.transaction("settings", "readwrite");
