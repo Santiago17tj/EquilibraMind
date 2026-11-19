@@ -162,6 +162,7 @@ export default function Home() {
     const next: Booking = { name: specialist.name, role: specialist.role, date: bookingDate, hour: bookingHour, mode, price: appointmentPrices[mode] };
     setBooking(next);
     setBookedNotice(true);
+    setCancelNotice(false);
     try { window.localStorage.setItem("equilibramind-demo-booking-v1", JSON.stringify(next)); } catch {}
   };
   const chooseSpecialist = (id: number) => {
@@ -388,7 +389,24 @@ export default function Home() {
       {view === "espacio" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">UN ESPACIO PARA TI</div><h1>Bienvenida a <em>tu momento de calma.</em></h1><p>Un panel personal simulado para descubrir cómo se sentiría usar EquilibraMind cada día.</p></div>
         <div className="space-grid"><div className="space-main"><div className="greeting-card"><span className="tiny-label">PERFIL DE PRUEBA · VALENTINA</span><h2>Hoy también puedes darte un respiro.</h2><p>Los pequeños momentos de cuidado también cuentan.</p><span className="greeting-spark"><Sparkles size={43}/></span></div>
-          <div className="space-card"><div className="space-title"><h3><CalendarDays size={21}/> Próxima cita</h3><span>DEMO</span></div>{booking ? <><div className="appointment-item"><span className="appointment-icon"><CalendarCheck2 size={25}/></span><div><strong>{booking.name}</strong><span>{booking.role}</span><small>{booking.date} · {booking.hour} · {booking.mode === "presencial" ? "Presencial (proyectada)" : "Teleconsulta (demo)"}</small><small>Tarifa de ejemplo: {formatCOP(booking.price ?? appointmentPrices[booking.mode ?? "virtual"])}</small></div></div><p className="muted-text">Confirmación ficticia guardada en este navegador. No existe videollamada ni atención agendada.</p><button className="text-link" onClick={() => navigate("profesionales")}>Modificar reserva demo <ArrowRight size={16}/></button></> : <><p className="muted-text">Todavía no tienes reservas en esta demostración.</p><button className="button button-outline" onClick={() => navigate("profesionales")}>Explorar profesionales <ArrowRight size={16}/></button></>}</div>
+          <div className="space-card">
+            <div className="space-title"><h3><CalendarDays size={21}/> Mi cita de demostración</h3><span>DEMO</span></div>
+            {booking ? <>
+              <div className="appointment-item">
+                <span className="appointment-icon"><CalendarCheck2 size={25}/></span>
+                <div><strong>{booking.name}</strong><span>{booking.role}</span><small>{readableDate(booking.date)} · {booking.hour}</small><small>{booking.mode === "presencial" ? "Presencial futura (simulación)" : "Teleconsulta (simulación)"} · 50 minutos</small><small>Precio ilustrativo: {formatCOP(booking.price ?? appointmentPrices[booking.mode ?? "virtual"])}</small></div>
+              </div>
+              <p className="muted-text">Esta reserva es ficticia y solo existe en este navegador. No hay cita médica, videollamada, consultorio ni pago real.</p>
+              <div className="appointment-actions">
+                <button className="button button-outline" onClick={beginReschedule}><RotateCcw size={16}/> Cambiar cita demo</button>
+                <button className="button cancel-button" onClick={cancelBooking}>Cancelar reserva demo</button>
+              </div>
+            </> : <>
+              {cancelNotice && <p className="cancel-notice" role="status"><CheckCircle2 size={17}/> La reserva ficticia fue cancelada y eliminada de este navegador.</p>}
+              <p className="muted-text">Aún no tienes reservas de ejemplo en este navegador. Puedes simular una en menos de dos minutos.</p>
+              <button className="button button-outline" onClick={() => navigate("profesionales")}>Explorar profesionales <ArrowRight size={16}/></button>
+            </>}
+          </div>
           {selectedPlan && <div className="space-card"><div className="space-title"><h3><CheckCircle2 size={21}/> Plan de ejemplo</h3><span>NO CONTRATADO</span></div><p>Seleccionaste <strong>{selectedPlan}</strong> para explorar el modelo comercial. No se ha realizado ningún pago ni suscripción.</p></div>}
         </div><aside className="space-side"><div className="space-card"><h3>Tu pausa de hoy <Leaf size={19}/></h3><p>¿Has respirado profundo hoy? Prueba inhalar suavemente, exhalar sin prisa y reconocer cómo te sientes.</p><div className="breathe-graphic"><span>inhala · exhala</span></div><small>Actividad de relajación general, no intervención clínica.</small></div><div className="space-card"><h3>Continúa explorando</h3><button className="shortcut" onClick={() => { resetQuiz(); navigate("chequeo"); }}><ClipboardCheck size={20}/> Chequeo orientativo <ArrowRight size={16}/></button><button className="shortcut" onClick={() => navigate("planes")}><HeartHandshake size={20}/> Planes de ejemplo <ArrowRight size={16}/></button></div></aside></div>
       </section>}
