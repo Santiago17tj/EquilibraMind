@@ -6,11 +6,12 @@ import {
   Building2, CalendarCheck2, CalendarDays, Check, CheckCircle2, ChevronDown,
   CircleHelp, ClipboardCheck, Clock3, Heart, HeartHandshake, Info, Leaf,
   LockKeyhole, Menu, MoonStar, PlayCircle, ShieldCheck, Sparkles, UserRound,
-  UsersRound, Wind, X
+  UsersRound, Wind, Video, MapPin, X
 } from "lucide-react";
 
 type Section = "inicio" | "chequeo" | "profesionales" | "empresas" | "planes" | "espacio";
-type Booking = { name: string; role: string; date: string; hour: string };
+type VisitMode = "virtual" | "presencial";
+type Booking = { name: string; role: string; date: string; hour: string; mode?: VisitMode; price?: number };
 const nav: { id: Section; label: string }[] = [
   { id: "inicio", label: "Inicio" },
   { id: "chequeo", label: "Mi bienestar" },
@@ -33,6 +34,8 @@ const questions = [
 ];
 const responseOptions = ["Nunca", "Algunas veces", "Con frecuencia", "Casi siempre"];
 const slotOptions = ["9:00 a. m.", "11:30 a. m.", "3:00 p. m.", "5:00 p. m."];
+const appointmentPrices: Record<VisitMode, number> = { virtual: 95000, presencial: 120000 };
+const formatCOP = (value: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(value);
 
 function Logo({ onClick }: { onClick: () => void }) {
   return <button type="button" className="brand" onClick={onClick} aria-label="Volver al inicio">
@@ -81,6 +84,7 @@ export default function Home() {
   const [selectedId, setSelectedId] = useState(1);
   const [bookingDate, setBookingDate] = useState("");
   const [bookingHour, setBookingHour] = useState("");
+  const [mode, setMode] = useState<VisitMode>("virtual");
   const [booking, setBooking] = useState<Booking | null>(null);
   const [bookedNotice, setBookedNotice] = useState(false);
   const [companyPreview, setCompanyPreview] = useState(false);
@@ -114,7 +118,7 @@ export default function Home() {
       : "Has señalado señales frecuentes de cansancio o sobrecarga. Considera hablar con una persona profesional habilitada y buscar apoyo en tu entorno.";
   const saveBooking = () => {
     if (!bookingDate || !bookingHour) return;
-    const next = { name: specialist.name, role: specialist.role, date: bookingDate, hour: bookingHour };
+    const next: Booking = { name: specialist.name, role: specialist.role, date: bookingDate, hour: bookingHour, mode, price: appointmentPrices[mode] };
     setBooking(next);
     setBookedNotice(true);
     try { window.localStorage.setItem("equilibramind-demo-booking-v1", JSON.stringify(next)); } catch {}
@@ -211,8 +215,32 @@ export default function Home() {
 
       {view === "profesionales" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">PERSONAS QUE ACOMPAÑAN</div><h1>Cada historia merece <em>ser escuchada.</em></h1><p>Explora diferentes enfoques del acompañamiento psicológico. Los perfiles y las reservas de esta sección son totalmente ficticios.</p></div>
-        <div className="specialist-grid">{specialists.map((person) => <article className="specialist-card" key={person.id}><div className={"specialist-photo " + person.color}><div className="portrait-orbit"/><span>{person.initials}</span><div className="profile-label">PERFIL FICTICIO</div></div><div className="specialist-info"><div className="tag">Atención virtual · Demo</div><h3>{person.name}</h3><span className="role-name">{person.role}</span><p>{person.focus}</p><div className="specialist-bottom"><span><Clock3 size={15}/>{person.experience}</span></div><button className="button button-outline button-full" onClick={() => {setSelectedId(person.id); setBookingDate(""); setBookingHour(""); document.getElementById("booking-panel")?.scrollIntoView({ behavior: "smooth" });}}>Reservar cita de prueba <ArrowRight size={16}/></button></div></article>)}</div>
-        <div className="booking-section" id="booking-panel"><div><div className="eyebrow">AGENDA UNA CITA DE DEMOSTRACIÓN</div><h2>Un primer paso, <em>cuando tú decidas.</em></h2><p>Experimenta cómo funcionaría el proceso de reserva. No se crearán citas reales y no es necesario ingresar datos personales.</p><div className="booking-person"><span className={"mini-avatar " + specialist.color}>{specialist.initials}</span><div><strong>{specialist.name}</strong><small>{specialist.role} · Perfil ficticio</small></div></div></div><div className="booking-form"><label htmlFor="professional">Profesional</label><select id="professional" value={selectedId} onChange={(e) => setSelectedId(Number(e.target.value))}>{specialists.map((person) => <option key={person.id} value={person.id}>{person.name} — {person.role}</option>)}</select><label htmlFor="date">Fecha de demostración</label><input id="date" type="date" value={bookingDate} min={new Date().toISOString().split("T")[0]} onChange={(e) => setBookingDate(e.target.value)}/><label htmlFor="hour">Horario de ejemplo</label><select id="hour" value={bookingHour} onChange={(e) => setBookingHour(e.target.value)}><option value="">Selecciona una hora</option>{slotOptions.map((slot) => <option key={slot}>{slot}</option>)}</select><button className="button button-primary button-full" onClick={saveBooking} disabled={!bookingDate || !bookingHour}>Confirmar reserva simulada <CalendarCheck2 size={18}/></button>{bookedNotice && <div className="success-message"><CheckCircle2 size={18}/> ¡Reserva de demostración creada! <button onClick={() => navigate("espacio")}>Ver en mi espacio</button></div>}</div></div>
+        <div className="specialist-grid">{specialists.map((person) => <article className="specialist-card" key={person.id}><div className={"specialist-photo " + person.color}><div className="portrait-orbit"/><span>{person.initials}</span><div className="profile-label">PERFIL FICTICIO</div></div><div className="specialist-info"><div className="tag">Atención de ejemplo · Demo</div><h3>{person.name}</h3><span className="role-name">{person.role}</span><p>{person.focus}</p><div className="specialist-bottom"><span><Clock3 size={15}/>{person.experience}</span></div><button className="button button-outline button-full" onClick={() => {setSelectedId(person.id); setBookingDate(""); setBookingHour(""); document.getElementById("booking-panel")?.scrollIntoView({ behavior: "smooth" });}}>Reservar cita de prueba <ArrowRight size={16}/></button></div></article>)}</div>
+        <div className="booking-section" id="booking-panel"><div><div className="eyebrow">AGENDA UNA CITA DE DEMOSTRACIÓN</div><h2>Un primer paso, <em>cuando tú decidas.</em></h2><p>Experimenta cómo funcionaría el proceso de reserva. No se crearán citas reales y no es necesario ingresar datos personales.</p><div className="booking-person"><span className={"mini-avatar " + specialist.color}>{specialist.initials}</span><div><strong>{specialist.name}</strong><small>{specialist.role} · Perfil ficticio</small></div></div></div><div className="booking-form">
+          <label htmlFor="professional">Profesional de ejemplo</label>
+          <select id="professional" value={selectedId} onChange={(e) => setSelectedId(Number(e.target.value))}>{specialists.map((person) => <option key={person.id} value={person.id}>{person.name} — {person.role}</option>)}</select>
+          <fieldset className="modality-picker">
+            <legend>¿Cómo prefieres tu sesión?</legend>
+            <div className="modality-options">
+              <label className={mode === "virtual" ? "modality-option chosen" : "modality-option"}>
+                <input type="radio" name="appointment-mode" value="virtual" checked={mode === "virtual"} onChange={() => setMode("virtual")} />
+                <span className="modality-option-body"><Video size={20} /><strong>Teleconsulta</strong><small>En línea · 50 min</small><b>{formatCOP(appointmentPrices.virtual)}</b></span>
+              </label>
+              <label className={mode === "presencial" ? "modality-option chosen" : "modality-option"}>
+                <input type="radio" name="appointment-mode" value="presencial" checked={mode === "presencial"} onChange={() => setMode("presencial")} />
+                <span className="modality-option-body"><MapPin size={20} /><strong>Presencial</strong><small>Bucaramanga · futura · 50 min</small><b>{formatCOP(appointmentPrices.presencial)}</b></span>
+              </label>
+            </div>
+          </fieldset>
+          <div className="modality-disclaimer"><Info size={16}/><span>{mode === "virtual" ? "Videoconsulta de demostración: no se creará ningún enlace real." : "Modalidad proyectada para Bucaramanga; aún no existe consultorio, dirección ni agenda presencial real."}</span></div>
+          <label htmlFor="date">Fecha de demostración</label>
+          <input id="date" type="date" value={bookingDate} min={new Date().toISOString().split("T")[0]} onChange={(e) => setBookingDate(e.target.value)}/>
+          <label htmlFor="hour">Horario ficticio</label>
+          <select id="hour" value={bookingHour} onChange={(e) => setBookingHour(e.target.value)}><option value="">Selecciona una hora</option>{slotOptions.map((slot) => <option key={slot}>{slot}</option>)}</select>
+          <div className="booking-summary"><div><span>Sesión {mode === "virtual" ? "virtual" : "presencial"} · 50 min</span><strong>{formatCOP(appointmentPrices[mode])}</strong></div><small>Tarifa ilustrativa en COP. No se realiza ningún pago ni reserva real.</small></div>
+          <button className="button button-primary button-full" onClick={saveBooking} disabled={!bookingDate || !bookingHour}>Confirmar reserva simulada <CalendarCheck2 size={18}/></button>
+          {bookedNotice && <div className="success-message"><CheckCircle2 size={18}/> ¡Reserva de ejemplo registrada! <button onClick={() => navigate("espacio")}>Ver en mi espacio</button></div>}
+        </div></div>
       </section>}
 
       {view === "empresas" && <section className="inner-section section-width">
@@ -225,7 +253,7 @@ export default function Home() {
       {view === "planes" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">PLANES PENSADOS PARA CADA NECESIDAD</div><h1>Elige cómo empezar <em>a cuidarte.</em></h1><p>Precios ilustrativos en pesos colombianos para validar el modelo de negocio. Sin transacciones ni cobros reales.</p></div>
         <div className="plan-grid">
-          <article className="plan-card"><div className="plan-kicker">A TU RITMO</div><h3>Sesión individual</h3><p>Para quienes prefieren explorar el acompañamiento sin compromisos mensuales.</p><div className="price">$95.000 <small>COP / sesión · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Reserva virtual simulada</div><div className="plan-item"><Check size={17}/> Selección de profesional</div><div className="plan-item"><Check size={17}/> Recursos de bienestar</div><button className="button button-outline button-full" onClick={() => choosePlan("Sesión individual")}>Seleccionar plan demo <ArrowRight size={16}/></button></article>
+          <article className="plan-card"><div className="plan-kicker">A TU RITMO</div><h3>Sesión individual</h3><p>Para quienes prefieren explorar el acompañamiento sin compromisos mensuales.</p><div className="price">$95.000 <small>COP / teleconsulta de 50 min · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Presencial proyectada: $120.000 COP</div><div className="plan-item"><Check size={17}/> Reserva y pago simulados</div><div className="plan-item"><Check size={17}/> Selección de profesional</div><div className="plan-item"><Check size={17}/> Recursos de bienestar</div><button className="button button-outline button-full" onClick={() => choosePlan("Sesión individual")}>Seleccionar plan demo <ArrowRight size={16}/></button></article>
           <article className="plan-card featured"><div className="recommended-label">MÁS COMPLETO · DEMO</div><div className="plan-kicker">ACOMPAÑAMIENTO CONSTANTE</div><h3>Equilibrio mensual</h3><p>Una propuesta de apoyo sostenido y hábitos saludables para el día a día.</p><div className="price">$279.000 <small>COP / mes · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Tres sesiones simuladas al mes</div><div className="plan-item"><Check size={17}/> Biblioteca de autocuidado</div><div className="plan-item"><Check size={17}/> Seguimiento orientativo</div><button className="button button-primary button-full" onClick={() => choosePlan("Equilibrio mensual")}>Seleccionar plan demo <ArrowRight size={16}/></button></article>
           <article className="plan-card"><div className="plan-kicker">BIENESTAR COLECTIVO</div><h3>Empresas</h3><p>Un modelo flexible para programas de bienestar y cultura organizacional.</p><div className="price price-custom">A medida <small>Propuesta comercial · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Talleres psicoeducativos</div><div className="plan-item"><Check size={17}/> Recursos para trabajadores</div><div className="plan-item"><Check size={17}/> Panel de indicadores agregados</div><button className="button button-outline button-full" onClick={() => navigate("empresas")}>Explorar empresas <ArrowRight size={16}/></button></article>
         </div><DemoNote />
@@ -234,7 +262,7 @@ export default function Home() {
       {view === "espacio" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">UN ESPACIO PARA TI</div><h1>Bienvenida a <em>tu momento de calma.</em></h1><p>Un panel personal simulado para descubrir cómo se sentiría usar EquilibraMind cada día.</p></div>
         <div className="space-grid"><div className="space-main"><div className="greeting-card"><span className="tiny-label">PERFIL DE PRUEBA · VALENTINA</span><h2>Hoy también puedes darte un respiro.</h2><p>Los pequeños momentos de cuidado también cuentan.</p><span className="greeting-spark"><Sparkles size={43}/></span></div>
-          <div className="space-card"><div className="space-title"><h3><CalendarDays size={21}/> Próxima cita</h3><span>DEMO</span></div>{booking ? <><div className="appointment-item"><span className="appointment-icon"><CalendarCheck2 size={25}/></span><div><strong>{booking.name}</strong><span>{booking.role}</span><small>{booking.date} · {booking.hour}</small></div></div><p className="muted-text">Confirmación ficticia guardada en este navegador. No existe videollamada ni atención agendada.</p><button className="text-link" onClick={() => navigate("profesionales")}>Modificar reserva demo <ArrowRight size={16}/></button></> : <><p className="muted-text">Todavía no tienes reservas en esta demostración.</p><button className="button button-outline" onClick={() => navigate("profesionales")}>Explorar profesionales <ArrowRight size={16}/></button></>}</div>
+          <div className="space-card"><div className="space-title"><h3><CalendarDays size={21}/> Próxima cita</h3><span>DEMO</span></div>{booking ? <><div className="appointment-item"><span className="appointment-icon"><CalendarCheck2 size={25}/></span><div><strong>{booking.name}</strong><span>{booking.role}</span><small>{booking.date} · {booking.hour} · {booking.mode === "presencial" ? "Presencial (proyectada)" : "Teleconsulta (demo)"}</small><small>Tarifa de ejemplo: {formatCOP(booking.price ?? appointmentPrices[booking.mode ?? "virtual"])}</small></div></div><p className="muted-text">Confirmación ficticia guardada en este navegador. No existe videollamada ni atención agendada.</p><button className="text-link" onClick={() => navigate("profesionales")}>Modificar reserva demo <ArrowRight size={16}/></button></> : <><p className="muted-text">Todavía no tienes reservas en esta demostración.</p><button className="button button-outline" onClick={() => navigate("profesionales")}>Explorar profesionales <ArrowRight size={16}/></button></>}</div>
           {selectedPlan && <div className="space-card"><div className="space-title"><h3><CheckCircle2 size={21}/> Plan de ejemplo</h3><span>NO CONTRATADO</span></div><p>Seleccionaste <strong>{selectedPlan}</strong> para explorar el modelo comercial. No se ha realizado ningún pago ni suscripción.</p></div>}
         </div><aside className="space-side"><div className="space-card"><h3>Tu pausa de hoy <Leaf size={19}/></h3><p>¿Has respirado profundo hoy? Prueba inhalar suavemente, exhalar sin prisa y reconocer cómo te sientes.</p><div className="breathe-graphic"><span>inhala · exhala</span></div><small>Actividad de relajación general, no intervención clínica.</small></div><div className="space-card"><h3>Continúa explorando</h3><button className="shortcut" onClick={() => { resetQuiz(); navigate("chequeo"); }}><ClipboardCheck size={20}/> Chequeo orientativo <ArrowRight size={16}/></button><button className="shortcut" onClick={() => navigate("planes")}><HeartHandshake size={20}/> Planes de ejemplo <ArrowRight size={16}/></button></div></aside></div>
       </section>}
