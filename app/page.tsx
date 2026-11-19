@@ -562,7 +562,7 @@ export default function Home() {
           currentPatientId={demoPatientId} onSelectPatient={selectDemoPatient} onReset={resetDemo}
           onViewBooking={() => navigate("espacio")} onChooseProfessional={() => navigate("profesionales")} />
         <DemoDiagnostics />
-      </section>
+      </section>}
 
       {view === "espacio" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">UN ESPACIO PARA TI</div><h1>Bienvenida a <em>tu momento de calma.</em></h1><p>Un panel personal simulado para descubrir cómo se sentiría usar EquilibraMind cada día.</p></div>
