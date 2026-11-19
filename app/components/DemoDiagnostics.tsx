@@ -1,0 +1,102 @@
+"use client";
+
+import { useState } from "react";
+import { CheckCircle2, ClipboardCheck, Image as ImageIcon, AlertCircle, LoaderCircle, ShieldCheck } from "lucide-react";
+import { loadDemoSnapshot } from "../lib/demo-db";
+
+type DiagnosticResult = {
+  name: string;
+  ok: boolean;
+  detail: string;
+};
+
+const portraits = [
+  { name: "Laura", path: "/images/laura.avif" },
+  { name: "Daniela", path: "/images/daniela-v2.avif" },
+  { name: "Julián", path: "/images/julian.avif" }
+];
+
+function imageReady(path: string): Promise<{ok: boolean; pixels: number}> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => resolve({ok: img.naturalWidth >= 800 && img.naturalHeight >= 800, pixels: img.naturalWidth});
+    img.onerror = () => resolve({ok: false, pixels: 0});
+    img.src = path;
+  });
+}
+
+export function DemoDiagnostics() {
+  const [running, setRunning] = useState(false);
+  const [results, setResults] = useState<DiagnosticResult[]>([]);
+  const [lastChecked, setLastChecked] = useState<string | null>(null);
+
+  const run = async () => {
+    setRunning(true);
+    setResults([]);
+    const checks: DiagnosticResult[] = [];
+    try {
+      const data = await loadDemoSnapshot();
+      checks.push({
+        name: "Base local IndexedDB",
+        ok: data.patients.length >= 3 && data.professionals.length >= 3 && data.plans.length >= 3,
+        detail: `${data.patients.length} pacientes ficticios · ${data.professionals.length} profesionales · ${data.plans.length} planes`
+      });
+      const referencesOk = data.appointments.every((item) =>
+        data.patients.some((patient) => patient.id === item.patientId)
+        && data.professionals.some((professional) => professional.id === item.professionalId)
+      );
+      checks.push({
+        name: "Consistencia de reservas",
+        ok: referencesOk,
+        detail: `${data.appointments.length} registros de cita · ${data.appointments.filter(item => item.status === "scheduled").length} activos`
+      });
+    } catch (error) {
+      checks.push({
+        name: "Base local IndexedDB",
+        ok: false,
+        detail: error instanceof Error ? error.message : "Error al leer el almacenamiento del navegador"
+      });
+    }
+
+    const seenPaths = new Set(portraits.map((item) => item.path));
+    const images = await Promise.all(portraits.map(async (portrait) => ({
+      ...portrait, result: await imageReady(portrait.path)
+    })));
+    checks.push({
+      name: "Retratos diferenciados",
+      ok: seenPaths.size === portraits.length && images.every((item) => item.result.ok),
+      detail: images.map((item) => `${item.name}: ${item.result.ok ? item.result.pixels + " px" : "no cargó"}`).join(" · ")
+    });
+    checks.push({
+      name: "Solo datos de demostración",
+      ok: true,
+      detail: "Esta herramienta solo inspecciona datos ficticios e imágenes; no registra datos clínicos ni realiza pagos."
+    });
+    setResults(checks);
+    setLastChecked(new Intl.DateTimeFormat("es-CO", { hour:"2-digit",minute:"2-digit" }).format(new Date()));
+    setRunning(false);
+  };
+
+  const passed = results.filter(item => item.ok).length;
+  return <section className="demo-healthcheck" aria-label="Diagnóstico local de la demostración">
+    <div className="demo-healthcheck-intro">
+      <span className="eyebrow"><ShieldCheck size={16}/> CONTROL DE CALIDAD · v0.6</span>
+      <h3>Comprueba esta demostración.</h3>
+      <p>Antes de exponer, revisa que tu navegador tenga los personajes, las citas y las fotografías de alta resolución. Esta comprobación es de solo lectura.</p>
+      <button type="button" className="button button-outline" onClick={run} disabled={running}>
+        {running ? <><LoaderCircle size={16}/> Comprobando…</> : <><ClipboardCheck size={16}/> Verificar demo en este navegador</>}
+      </button>
+    </div>
+    {results.length > 0 && <div className="demo-healthcheck-results" aria-live="polite">
+      <strong>{passed} de {results.length} comprobaciones correctas {passed === results.length ? "✓" : "— revisar"}</strong>
+      <span>Comprobado a las {lastChecked}</span>
+      <div className="demo-healthcheck-list">
+        {results.map(item => <div className={"demo-healthcheck-item " + (item.ok ? "ok" : "failed")} key={item.name}>
+          {item.ok ? <CheckCircle2 size={18}/> : <AlertCircle size={18}/>}
+          <div><b>{item.name}</b><small>{item.detail}</small></div>
+        </div>)}
+      </div>
+      <small><ImageIcon size={14}/> La prueba verifica carga y tamaño de archivos, no certifica calidad visual, accesibilidad ni consultas reales.</small>
+    </div>}
+  </section>;
+}
