@@ -285,33 +285,88 @@ export default function Home() {
       </section>}
 
       {view === "profesionales" && <section className="inner-section section-width">
-        <div className="subpage-head"><div className="eyebrow">PERSONAS QUE ACOMPAÑAN</div><h1>Cada historia merece <em>ser escuchada.</em></h1><p>Explora diferentes enfoques del acompañamiento psicológico. Los perfiles y las reservas de esta sección son totalmente ficticios.</p></div>
-        <div className="specialist-grid">{specialists.map((person) => <article className="specialist-card" key={person.id}><div className={"specialist-photo " + person.color}><div className="portrait-orbit"/><span>{person.initials}</span><div className="profile-label">PERFIL FICTICIO</div></div><div className="specialist-info"><div className="tag">Atención de ejemplo · Demo</div><h3>{person.name}</h3><span className="role-name">{person.role}</span><p>{person.focus}</p><div className="specialist-bottom"><span><Clock3 size={15}/>{person.experience}</span></div><button className="button button-outline button-full" onClick={() => {setSelectedId(person.id); setBookingDate(""); setBookingHour(""); document.getElementById("booking-panel")?.scrollIntoView({ behavior: "smooth" });}}>Reservar cita de prueba <ArrowRight size={16}/></button></div></article>)}</div>
-        <div className="booking-section" id="booking-panel"><div><div className="eyebrow">AGENDA UNA CITA DE DEMOSTRACIÓN</div><h2>Un primer paso, <em>cuando tú decidas.</em></h2><p>Experimenta cómo funcionaría el proceso de reserva. No se crearán citas reales y no es necesario ingresar datos personales.</p><div className="booking-person"><span className={"mini-avatar " + specialist.color}>{specialist.initials}</span><div><strong>{specialist.name}</strong><small>{specialist.role} · Perfil ficticio</small></div></div></div><div className="booking-form">
-          <label htmlFor="professional">Profesional de ejemplo</label>
-          <select id="professional" value={selectedId} onChange={(e) => setSelectedId(Number(e.target.value))}>{specialists.map((person) => <option key={person.id} value={person.id}>{person.name} — {person.role}</option>)}</select>
-          <fieldset className="modality-picker">
-            <legend>¿Cómo prefieres tu sesión?</legend>
-            <div className="modality-options">
-              <label className={mode === "virtual" ? "modality-option chosen" : "modality-option"}>
-                <input type="radio" name="appointment-mode" value="virtual" checked={mode === "virtual"} onChange={() => setMode("virtual")} />
-                <span className="modality-option-body"><Video size={20} /><strong>Teleconsulta</strong><small>En línea · 50 min</small><b>{formatCOP(appointmentPrices.virtual)}</b></span>
-              </label>
-              <label className={mode === "presencial" ? "modality-option chosen" : "modality-option"}>
-                <input type="radio" name="appointment-mode" value="presencial" checked={mode === "presencial"} onChange={() => setMode("presencial")} />
-                <span className="modality-option-body"><MapPin size={20} /><strong>Presencial</strong><small>Bucaramanga · futura · 50 min</small><b>{formatCOP(appointmentPrices.presencial)}</b></span>
-              </label>
+        <div className="subpage-head">
+          <div className="eyebrow">ACOMPAÑAMIENTO CON UN ENFOQUE HUMANO</div>
+          <h1>Cada historia merece <em>ser escuchada.</em></h1>
+          <p>Explora distintas áreas de la psicología y conoce cómo sería elegir un profesional. Los nombres, trayectorias y perfiles que ves aquí son inventados para esta demostración.</p>
+        </div>
+        <div className="profile-filter-row" role="group" aria-label="Filtrar profesionales por enfoque">
+          {profileFilters.map((filter) => <button type="button" key={filter.value} className={profileFilter === filter.value ? "filter-chip active" : "filter-chip"} aria-pressed={profileFilter === filter.value} onClick={() => {setProfileFilter(filter.value); setExpandedProfileId(null);}}>{filter.label}</button>)}
+        </div>
+        <div className="specialist-grid">
+          {visibleSpecialists.map((person) => <article className="specialist-card" key={person.id}>
+            <div className={"specialist-photo " + person.color} aria-label={"Avatar ilustrativo de " + person.name}>
+              <div className="portrait-orbit"/><div className="avatar-bust"><span>{person.initials}</span></div>
+              <div className="profile-label">PERSONAJE FICTICIO</div>
             </div>
-          </fieldset>
-          <div className="modality-disclaimer"><Info size={16}/><span>{mode === "virtual" ? "Videoconsulta de demostración: no se creará ningún enlace real." : "Modalidad proyectada para Bucaramanga; aún no existe consultorio, dirección ni agenda presencial real."}</span></div>
-          <label htmlFor="date">Fecha de demostración</label>
-          <input id="date" type="date" value={bookingDate} min={new Date().toISOString().split("T")[0]} onChange={(e) => setBookingDate(e.target.value)}/>
-          <label htmlFor="hour">Horario ficticio</label>
-          <select id="hour" value={bookingHour} onChange={(e) => setBookingHour(e.target.value)}><option value="">Selecciona una hora</option>{slotOptions.map((slot) => <option key={slot}>{slot}</option>)}</select>
-          <div className="booking-summary"><div><span>Sesión {mode === "virtual" ? "virtual" : "presencial"} · 50 min</span><strong>{formatCOP(appointmentPrices[mode])}</strong></div><small>Tarifa ilustrativa en COP. No se realiza ningún pago ni reserva real.</small></div>
-          <button className="button button-primary button-full" onClick={saveBooking} disabled={!bookingDate || !bookingHour}>Confirmar reserva simulada <CalendarCheck2 size={18}/></button>
-          {bookedNotice && <div className="success-message"><CheckCircle2 size={18}/> ¡Reserva de ejemplo registrada! <button onClick={() => navigate("espacio")}>Ver en mi espacio</button></div>}
-        </div></div>
+            <div className="specialist-info">
+              <div className="tag">Perfil de demostración · 50 minutos</div>
+              <h3>{person.name}</h3>
+              <span className="role-name">{person.role}</span>
+              <p>{person.focus}</p>
+              <div className="profile-mini-tags">{person.approaches.slice(0,2).map((topic) => <span key={topic}>{topic}</span>)}</div>
+              <div className="specialist-bottom"><span><Clock3 size={15}/>{person.experience}</span></div>
+              <div className="profile-price-row"><span>Teleconsulta de ejemplo</span><strong>{formatCOP(appointmentPrices.virtual)}</strong></div>
+              <div className="profile-card-actions">
+                <button type="button" className="button button-outline" aria-expanded={expandedProfileId === person.id} onClick={() => setExpandedProfileId(expandedProfileId === person.id ? null : person.id)}>{expandedProfileId === person.id ? "Cerrar ficha" : "Ver perfil"} <ArrowRight size={15}/></button>
+                <button type="button" className="button button-primary" onClick={() => chooseSpecialist(person.id)}>Agendar demo <CalendarDays size={15}/></button>
+              </div>
+            </div>
+          </article>)}
+        </div>
+        {expandedProfile && <section className="profile-detail" aria-label={"Ficha ficticia de " + expandedProfile.name}>
+          <div className="profile-detail-top">
+            <span className={"mini-avatar " + expandedProfile.color}>{expandedProfile.initials}</span>
+            <div><span className="eyebrow">FICHA DEL PROFESIONAL · DEMOSTRACIÓN</span><h2>{expandedProfile.name}</h2><p>{expandedProfile.role} · {expandedProfile.audience}</p></div>
+            <button type="button" className="profile-close" onClick={() => setExpandedProfileId(null)} aria-label="Cerrar ficha"><X size={19}/></button>
+          </div>
+          <div className="profile-detail-grid">
+            <div><h3>Sobre este enfoque</h3><p>{expandedProfile.bio}</p><p className="profile-education"><GraduationCap size={17}/>{expandedProfile.education}</p></div>
+            <div><h3>Áreas de acompañamiento</h3><div className="profile-detail-tags">{expandedProfile.approaches.map((topic) => <span key={topic}><Check size={14}/>{topic}</span>)}</div><p className="profile-meta"><Video size={17}/> Teleconsulta simulada · 50 min · {formatCOP(appointmentPrices.virtual)}</p><p className="profile-meta"><MapPin size={17}/> Presencial en Bucaramanga: modalidad futura, sin consultorio habilitado</p></div>
+          </div>
+          <div className="profile-detail-bottom"><span><Info size={16}/> Ficha, formación y experiencia inventadas. No representan profesionales reales.</span><button className="button button-primary" onClick={() => chooseSpecialist(expandedProfile.id)}>Reservar cita de prueba <ArrowRight size={17}/></button></div>
+        </section>}
+        <div className="booking-section" id="booking-panel">
+          <div className="booking-intro">
+            <div className="eyebrow">AGENDA DE DEMOSTRACIÓN</div>
+            <h2>Un primer paso, <em>cuando tú decidas.</em></h2>
+            <p>Simula el proceso de reserva: elige modalidad, fecha y hora, revisa el valor y confirma. No se ofrece atención, no hay disponibilidad real y no debes ingresar información personal.</p>
+            <div className="booking-person"><span className={"mini-avatar " + specialist.color}>{specialist.initials}</span><div><strong>{specialist.name}</strong><small>{specialist.role} · Perfil ficticio</small></div></div>
+            <div className="booking-steps"><span className="step-pill"><CheckCircle2 size={16}/> Profesional</span><span className="step-pill">2. Modalidad y hora</span><span className="step-pill">3. Confirmación demo</span></div>
+            <div className="booking-soft-warning"><Info size={18}/><span>Los horarios son ilustrativos, sin verificación de agenda. La modalidad presencial está prevista para una etapa futura.</span></div>
+          </div>
+          <div className="booking-form">
+            <label htmlFor="professional">Profesional de ejemplo</label>
+            <select id="professional" value={selectedId} onChange={(event) => {setSelectedId(Number(event.target.value)); setBookedNotice(false);}}>{specialists.map((person) => <option key={person.id} value={person.id}>{person.name} — {person.role}</option>)}</select>
+            <fieldset className="modality-picker">
+              <legend>¿Cómo prefieres tu sesión?</legend>
+              <div className="modality-options">
+                <label className={mode === "virtual" ? "modality-option chosen" : "modality-option"}>
+                  <input type="radio" name="appointment-mode" value="virtual" checked={mode === "virtual"} onChange={() => {setMode("virtual"); setBookedNotice(false);}}/>
+                  <span className="modality-option-body"><Video size={20}/><strong>Teleconsulta</strong><small>En línea · 50 minutos</small><b>{formatCOP(appointmentPrices.virtual)}</b></span>
+                </label>
+                <label className={mode === "presencial" ? "modality-option chosen" : "modality-option"}>
+                  <input type="radio" name="appointment-mode" value="presencial" checked={mode === "presencial"} onChange={() => {setMode("presencial"); setBookedNotice(false);}}/>
+                  <span className="modality-option-body"><MapPin size={20}/><strong>Presencial</strong><small>Bucaramanga · futura · 50 minutos</small><b>{formatCOP(appointmentPrices.presencial)}</b></span>
+                </label>
+              </div>
+            </fieldset>
+            <div className="modality-disclaimer"><Info size={16}/><span>{mode === "virtual" ? "Teleconsulta solo como simulación; no se genera videollamada ni se asigna un profesional real." : "Atención presencial propuesta para una etapa futura. No existe sede clínica, dirección o agenda presencial disponible."}</span></div>
+            <label htmlFor="date">Elige un día (simulado)</label>
+            <input id="date" type="date" value={bookingDate} min={localDateISO()} onChange={(event) => {setBookingDate(event.target.value); setBookedNotice(false);}}/>
+            <label htmlFor="hour">Horario de ejemplo</label>
+            <select id="hour" value={bookingHour} onChange={(event) => {setBookingHour(event.target.value); setBookedNotice(false);}}>
+              <option value="">Selecciona una hora</option>{slotOptions.map((slot) => <option key={slot} value={slot}>{slot}</option>)}
+            </select>
+            <div className="booking-summary">
+              <div><span>Sesión {mode === "virtual" ? "virtual" : "presencial"} · 50 minutos</span><strong>{formatCOP(appointmentPrices[mode])}</strong></div>
+              <small>{isBookingReady ? readableDate(bookingDate) + " · " + bookingHour + " · " + specialist.name : "Selecciona fecha y horario para completar el resumen."}</small>
+              <small>Precio ilustrativo en COP. No se cobra ni se confirma ninguna atención real.</small>
+            </div>
+            <button type="button" className="button button-primary button-full" onClick={saveBooking} disabled={!isBookingReady}>Confirmar reserva ficticia <CalendarCheck2 size={18}/></button>
+            {bookedNotice && <div className="success-message" role="status"><CheckCircle2 size={18}/> ¡Reserva de demostración guardada! <button onClick={() => navigate("espacio")}>Ver en Mi espacio</button></div>}
+          </div>
+        </div>
       </section>}
 
       {view === "empresas" && <section className="inner-section section-width">
