@@ -4,7 +4,7 @@
 
 Prototipo académico y demostración de negocio de una plataforma de bienestar psicológico, psicoeducación y prevención del agotamiento laboral (*burnout*). Inspirado en el trabajo de Psicología Organizacional de la UDI (2026).
 
-## Estado: versión 0.1
+## Estado: versión 0.2 — perfiles y citas interactivas
 
 Proyecto web funcional de demostración, con diseño **wellbeing premium** (verde salvia, marfil, grafito) y contenido en español.
 
@@ -12,8 +12,8 @@ Proyecto web funcional de demostración, con diseño **wellbeing premium** (verd
 
 - **Inicio comercial responsive:** propuesta de valor y recorrido de bienvenida.
 - **Mi bienestar:** cuestionario orientativo de seis preguntas, con reflexión educativa y recomendaciones generales. **No es una prueba validada ni diagnóstico clínico.**
-- **Profesionales:** tres perfiles completamente ficticios, con énfasis en psicología clínica, estudiantil y organizacional.
-- **Reservas ficticias:** selección de profesional, **teleconsulta o presencial proyectada**, fecha y hora. Precio de referencia mostrado antes de confirmar. La modalidad y el precio quedan guardados en el navegador con la reserva simulada.
+- **Profesionales:** tres perfiles completamente ficticios, con filtros por estrés laboral y vida estudiantil, fichas informativas ampliadas, enfoques y trayectorias simuladas. Los avatares son ilustrativos, no fotografías de profesionales reales.
+- **Reservas ficticias:** flujo guiado para seleccionar profesional, **teleconsulta o presencial proyectada**, fecha y horario de ejemplo, con precio ilustrativo visible antes de confirmar. La reserva se guarda solo en el navegador y puede **modificarse o cancelarse** desde «Mi espacio». Se conserva únicamente una reserva de demostración a la vez.
 - **Tarifas orientativas (solo demostración):** teleconsulta de 50 minutos $95.000 COP; presencial futura en Bucaramanga de 50 minutos $120.000 COP; tres teleconsultas mensuales $279.000 COP. No se realizan pagos.
 - **Planes demostrativos:** pago por sesión, mensual y corporativo. **No hay cobros reales.**
 - **Empresas:** propuesta B2B y panel con métricas agregadas simuladas.
@@ -76,10 +76,14 @@ Importar el repositorio desde Vercel y dejar la configuración detectada de Next
 1. Abrir Inicio y explicar la propuesta de valor.
 2. Pulsar **Conoce cómo te sientes** para completar el chequeo orientativo.
 3. Ir a **Profesionales** y seleccionar un perfil ficticio.
-4. Elegir fecha y hora de ejemplo, confirmar reserva simulada.
-5. Abrir **Mi espacio** y comprobar que la reserva se conserva al recargar ese navegador.
-6. Ir a **Para empresas** y abrir el panel de métricas ficticias.
-7. En **Planes**, explicar el modelo de pago por sesión, suscripción y B2B.
+4. Utilizar los filtros «Estrés laboral» o «Vida estudiantil» y abrir «Ver perfil» para mostrar una ficha ampliada.
+5. Pulsar «Agendar demo» y elegir entre teleconsulta o presencial futura; revisar el precio antes de continuar.
+6. Elegir fecha y hora de ejemplo y confirmar una reserva simulada.
+7. Abrir **Mi espacio** y comprobar que la reserva se conserva al recargar ese navegador.
+8. Pulsar «Cambiar cita demo», revisar que se recuperen los datos y confirmar una nueva fecha.
+9. Pulsar «Cancelar reserva demo» y comprobar que desaparezca del panel (puedes volver a crearla).
+10. Ir a **Para empresas** y abrir el panel de métricas ficticias.
+11. En **Planes**, explicar el modelo de pago por sesión, suscripción y B2B.
 
 ## Privacidad, ética y límites
 
@@ -89,7 +93,7 @@ Para convertirlo en un servicio comercial real en Colombia: validar habilitació
 
 ## Siguiente fase
 
-- **0.2:** estructura por módulos/rutas, accesibilidad reforzada, autenticación real y datos seguros (Supabase).
-- **0.3:** calendario real con disponibilidad, plataforma empresarial con datos agregados, pagos integrados y flujos profesionales bajo supervisión clínica.
+- **0.3:** separar el monolito en componentes reutilizables, mejorar accesibilidad y agregar cuentas de **demostración** con roles diferenciados (sin recopilar datos clínicos).
+- **Fase comercial futura:** profesionales habilitados, autenticación segura y datos protegidos (Supabase), disponibilidad y cancelaciones reales, cobros integrados, y protocolos clínicos y empresariales bajo asesoría especializada.
 
 > No publicar secretos ni credenciales en este repositorio público.
