@@ -6,6 +6,7 @@ import { BreathingExercise } from "./components/BreathingExercise";
 import { GuidedExperience, demoFlows, type GuideAudience } from "./components/GuidedExperience";
 import { DemoDiagnostics } from "./components/DemoDiagnostics";
 import { CompanyJourney } from "./components/CompanyJourney";
+import { WelcomeIntro } from "./components/WelcomeIntro";
 import {
   specialists, loadDemoSnapshot, findActiveBooking, saveDemoBooking,
   cancelDemoBooking, resetDemoDatabase, setDemoSetting,
@@ -618,5 +619,6 @@ export default function Home() {
     {guideAudience && <GuidedExperience audience={guideAudience} step={guideStep}
       onStep={(step) => goGuideStep(guideAudience, step)} onClose={() => setGuideAudience(null)}/>}
     <BrandFooter navigate={navigate} />
+    <WelcomeIntro />
   </div>;
 }

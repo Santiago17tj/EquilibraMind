@@ -4,18 +4,15 @@
 
 Prototipo académico y demostración de negocio de una plataforma de bienestar psicológico, psicoeducación y prevención del agotamiento laboral (*burnout*). Inspirado en el trabajo de Psicología Organizacional de la UDI (2026).
 
-## En revisión: versión 0.7 — diseño adaptable y propuesta B2B
+## Estado: versión 0.7 — diseño responsive y propuesta B2B
 
-El desarrollo v0.7 se prepara en una rama separada (`feat/v0.7`) y **no está publicado en producción mientras el PR esté pendiente**. Incluye:
+La v0.7 se integró en `main` mediante el PR #2. Incluye una composición adaptable del cuestionario, tarjetas a tamaño tableta, la nueva presentación empresarial de tres etapas, el texto de fecha en español, correcciones de accesibilidad y pruebas E2E adicionales. Toda la información sobre servicios, métricas y profesionales sigue siendo **ficticia**.
 
-- Ajuste del cuestionario en pantallas grandes: se elimina su altura mínima rígida para evitar espacios internos innecesarios.
-- Diseño de las tarjetas a tamaño tableta: el tercer perfil se presenta horizontalmente a todo el ancho; las estadísticas de la vista por rol dejan de quedar aisladas a la izquierda.
-- Equilibrio de «Mi espacio»: una nueva tarjeta de ideas educativas opcionales, sin registrar hábitos ni datos clínicos.
-- Nueva sección empresarial de tres etapas que explica el modelo propuesto y diferencia claramente simulación y servicio real.
-- Etiqueta de fecha en español bajo el selector nativo, independientemente del formato que presente el navegador.
-- Cuatro pruebas E2E adicionales en `e2e/polish-v07.spec.ts`.
+## En revisión: versión 0.7.1 — bienvenida animada y microinteracciones
 
-Para revisarlo, consultar [docs/REVISIÓN_V07.md](docs/REVISIÓN_V07.md). La versión principal y las pruebas de v0.6 se mantienen sin cambios hasta aprobar el PR.
+La rama `feat/v0.7.1-motion-intro` añade una **animación breve al abrir la web**: símbolo de respiración, marca EquilibraMind, mensaje de calma y botón «Entrar ahora». Dura aproximadamente dos segundos, se muestra solo una vez por pestaña, puede omitirse con Escape y desaparece por completo si el sistema solicita reducir movimiento. Es decorativa y **no bloquea el uso de la página**.
+
+Las tarjetas de empresas, opciones del cuestionario, atajos y selectores reciben respuestas visuales sutiles en dispositivos con hover. Las animaciones se desactivan cuando corresponde a la preferencia de accesibilidad `prefers-reduced-motion`. La batería anterior de pruebas sigue disponible; se agregan pruebas E2E sobre la intro. **Esta iteración no se fusiona ni se publica automáticamente.** Consulta [docs/REVISION_MOTION_V071.md](docs/REVISION_MOTION_V071.md).
 
 ## Estado: versión 0.6 — calidad, retratos diferenciados y reserva más intuitiva
 
