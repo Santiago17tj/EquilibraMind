@@ -8,11 +8,19 @@ Prototipo académico y demostración de negocio de una plataforma de bienestar p
 
 La v0.7 se integró en `main` mediante el PR #2. Incluye una composición adaptable del cuestionario, tarjetas a tamaño tableta, la nueva presentación empresarial de tres etapas, el texto de fecha en español, correcciones de accesibilidad y pruebas E2E adicionales. Toda la información sobre servicios, métricas y profesionales sigue siendo **ficticia**.
 
-## En revisión: versión 0.7.1 — bienvenida animada y microinteracciones
+## Versión 0.7.1 — bienvenida animada y microinteracciones (publicada)
 
-La rama `feat/v0.7.1-motion-intro` añade una **animación breve al abrir la web**: símbolo de respiración, marca EquilibraMind, mensaje de calma y botón «Entrar ahora». Dura aproximadamente dos segundos, se muestra solo una vez por pestaña, puede omitirse con Escape y desaparece por completo si el sistema solicita reducir movimiento. Es decorativa y **no bloquea el uso de la página**.
+La versión 0.7.1 se integró en `main` mediante el [PR #3](https://github.com/Santiago17tj/EquilibraMind/pull/3), con un ajuste posterior del ejercicio de respiración en el [PR #4](https://github.com/Santiago17tj/EquilibraMind/pull/4). Se mantiene el carácter **académico y ficticio** del prototipo.
 
-Las tarjetas de empresas, opciones del cuestionario, atajos y selectores reciben respuestas visuales sutiles en dispositivos con hover. Las animaciones se desactivan cuando corresponde a la preferencia de accesibilidad `prefers-reduced-motion`. La batería anterior de pruebas sigue disponible; se agregan pruebas E2E sobre la intro. **Esta iteración no se fusiona ni se publica automáticamente.** Consulta [docs/REVISION_MOTION_V071.md](docs/REVISION_MOTION_V071.md).
+- Intro breve al abrir una pestaña: marca EquilibraMind, anillos de respiración y mensaje «A veces, todo empieza con una pausa».
+- Cierre automático o botón «Entrar ahora». Escape y cualquier interacción con navegación ocultan la intro inmediatamente.
+- Una visita por pestaña con `sessionStorage`; al recargar no reaparece.
+- Compatibilidad con `prefers-reduced-motion: reduce` y navegación sin bloqueo.
+- Microinteracciones discretas en tarjetas, filtros, botones y cuestionario.
+- Corrección del temporizador para que la pausa y el reinicio no procesen intervalos pendientes.
+- Pruebas Playwright ampliadas. La última ejecución de la rama de corrección pasó **69/69** casos E2E, además de TypeScript, build y pruebas unitarias.
+
+Ver [docs/REVISION_MOTION_V071.md](docs/REVISION_MOTION_V071.md) para los criterios usados durante el desarrollo. Las validaciones de accesibilidad y dispositivos reales siguen siendo tareas de calidad pendientes.
 
 ## Estado: versión 0.6 — calidad, retratos diferenciados y reserva más intuitiva
 
