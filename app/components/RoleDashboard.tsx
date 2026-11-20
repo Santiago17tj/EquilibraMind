@@ -48,8 +48,7 @@ export function RoleDashboard({
     .sort((a, b) => (a.date + a.hour).localeCompare(b.date + b.hour));
   const patient = patients.find(item => item.id === currentPatientId);
   const totalRevenue = appointments.reduce((sum, item) => sum + item.price, 0);
-  const virtualCount = appointments.filter(item => item.mode === "virtual").length;
-  const virtualPercent = appointments.length ? Math.round(virtualCount * 100 / appointments.length) : 0;
+  const teleconsultationPercent = appointments.length > 0 ? 100 : 0;
 
   return <section className="role-demo-wrap" aria-label="Paneles interactivos de demostración">
     <div className="role-demo-header">
@@ -92,7 +91,7 @@ export function RoleDashboard({
         </div>
         <div className="role-detail-panels">
           <div className="role-panel"><h4>Próxima cita ficticia</h4>
-            {booking ? <p>{booking.name} · {formatDate(booking.date)} · {booking.hour} · {booking.mode === "virtual" ? "Teleconsulta" : "Presencial futura"}</p>
+            {booking ? <p>{booking.name} · {formatDate(booking.date)} · {booking.hour} · Teleconsulta</p>
               : <p>Este personaje todavía no tiene una reserva activa. Puedes simular una ahora.</p>}
             <button className="text-link" onClick={booking ? onViewBooking : onChooseProfessional}>
               {booking ? "Modificar o cancelar" : "Elegir profesional"} <ChevronRight size={16}/>
@@ -125,7 +124,7 @@ export function RoleDashboard({
               return <div key={item.id} className="role-appointment">
                 <span className="role-initials">{person?.name.split(" ").map(word => word[0]).join("") ?? "DE"}</span>
                 <span><strong>{person?.name ?? "Personaje ficticio"}</strong>
-                  <small>{formatDate(item.date)} · {item.mode === "virtual" ? "Teleconsulta" : "Presencial futura"}</small></span>
+                  <small>{formatDate(item.date)} · Teleconsulta</small></span>
                 <time>{item.hour}</time>
               </div>;
             })}
@@ -144,12 +143,10 @@ export function RoleDashboard({
         </div>
         <div className="role-detail-panels">
           <div className="role-panel">
-            <h4>Distribución de modalidades</h4>
-            <div className="role-metric-line"><span>Teleconsulta simulada</span><b>{virtualPercent}%</b></div>
-            <div className="role-meter"><i style={{width: virtualPercent + "%"}} /></div>
-            <div className="role-metric-line"><span>Presencial proyectada</span><b>{100 - virtualPercent}%</b></div>
-            <div className="role-meter"><i style={{width: (100 - virtualPercent) + "%"}} /></div>
-            <span className="role-small-note">Porcentajes calculados con citas ficticias de este navegador.</span>
+            <h4>Modelo de teleconsulta</h4>
+            <div className="role-metric-line"><span>Reservas virtuales de ejemplo</span><b>{teleconsultationPercent}%</b></div>
+            <div className="role-meter"><i style={{width: teleconsultationPercent + "%"}} /></div>
+            <span className="role-small-note">EquilibraMind contempla exclusivamente teleconsultas. Indicador calculado con reservas ficticias; no representa atención real.</span>
           </div>
           <div className="role-panel">
             <h4>Operación del prototipo</h4>

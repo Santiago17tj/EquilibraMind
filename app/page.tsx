@@ -17,7 +17,7 @@ import {
   Building2, CalendarCheck2, CalendarDays, Check, CheckCircle2, ChevronDown,
   CircleHelp, ClipboardCheck, Clock3, Heart, HeartHandshake, Info, Leaf,
   LockKeyhole, Menu, MoonStar, PlayCircle, ShieldCheck, Sparkles, UserRound,
-  UsersRound, Wind, Video, MapPin, RotateCcw, GraduationCap, BriefcaseBusiness, X
+  UsersRound, Wind, Video, RotateCcw, GraduationCap, BriefcaseBusiness, X
 } from "lucide-react";
 
 type Section = "inicio" | "chequeo" | "profesionales" | "empresas" | "planes" | "espacio" | "demo";
@@ -44,7 +44,7 @@ const questions = [
 ];
 const responseOptions = ["Nunca", "Algunas veces", "Con frecuencia", "Casi siempre"];
 const slotOptions = ["9:00 a. m.", "11:30 a. m.", "3:00 p. m.", "5:00 p. m."];
-const appointmentPrices: Record<VisitMode, number> = { virtual: 95000, presencial: 120000 };
+const appointmentPrices: Record<VisitMode, number> = { virtual: 95000 };
 const formatCOP = (value: number) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(value);
 const localDateISO = () => {
   const now = new Date();
@@ -111,7 +111,6 @@ export default function Home() {
   const [cancelNotice, setCancelNotice] = useState(false);
   const [bookingDate, setBookingDate] = useState("");
   const [bookingHour, setBookingHour] = useState("");
-  const [mode, setMode] = useState<VisitMode>("virtual");
   const [demoSnapshot, setDemoSnapshot] = useState<DemoSnapshot | null>(null);
   const [demoPatientId, setDemoPatientId] = useState("valentina");
   const [dbError, setDbError] = useState("");
@@ -267,7 +266,7 @@ export default function Home() {
     if (!isBookingReady) return;
     setDbBusy(true); setDbError("");
     try {
-      await saveDemoBooking(demoPatientId, { professionalId: specialist.id, date: bookingDate, hour: bookingHour, mode });
+      await saveDemoBooking(demoPatientId, { professionalId: specialist.id, date: bookingDate, hour: bookingHour, mode: "virtual" });
       await refreshDemo();
       setBookedNotice(true); setCancelNotice(false);
     } catch (error) {
@@ -285,7 +284,6 @@ export default function Home() {
     if (!booking) return;
     const found = specialists.find((person) => person.name === booking.name);
     setSelectedId(found?.id ?? 1);
-    setMode(booking.mode ?? "virtual");
     setBookingDate(booking.date >= localDateISO() ? booking.date : "");
     setBookingHour(slotOptions.includes(booking.hour) ? booking.hour : "");
     setJumpToBooking(true);
@@ -448,7 +446,7 @@ export default function Home() {
               <h2 aria-live="polite">{questions[quizStep]}</h2>
               <div className="answer-list">{responseOptions.map((option, index) => <button key={option} type="button" aria-pressed={answers[quizStep] === index} className={answers[quizStep] === index ? "answer-option selected" : "answer-option"} onClick={() => setAnswers((all) => all.map((a, i) => i === quizStep ? index : a))}><span className="radio-dot"/>{option}</button>)}</div>
               <div className="quiz-actions"><button className="button button-ghost" onClick={() => setQuizStep((s) => Math.max(s - 1, 0))} disabled={quizStep === 0}><ArrowLeft size={17}/> Anterior</button><button className="button button-primary" disabled={answers[quizStep] === -1} onClick={() => quizStep === questions.length - 1 ? setQuizFinished(true) : setQuizStep((s) => s + 1)}>{quizStep === questions.length - 1 ? "Ver mi reflexión" : "Continuar"} <ArrowRight size={17}/></button></div>
-            </> : <div className="quiz-result" role="status"><span className="result-icon"><Leaf size={34}/></span><div className="eyebrow">TU REFLEXIÓN PERSONAL</div><h2>{category}</h2><p>{guidance}</p><div className="result-hint"><Info size={19}/><span>Este cuestionario es una actividad educativa creada para la demostración, sin validación psicométrica. No mide ni diagnostica burnout ni sustituye la evaluación profesional.</span></div><div className="result-buttons"><button className="button button-primary" onClick={() => navigate("profesionales")}>Conocer profesionales <ArrowRight size={17}/></button><button className="button button-outline" onClick={() => navigate("planes")}>Ver modalidades y precios</button><button className="button button-ghost" onClick={resetQuiz}>Repetir ejercicio</button></div></div>}
+            </> : <div className="quiz-result" role="status"><span className="result-icon"><Leaf size={34}/></span><div className="eyebrow">TU REFLEXIÓN PERSONAL</div><h2>{category}</h2><p>{guidance}</p><div className="result-hint"><Info size={19}/><span>Este cuestionario es una actividad educativa creada para la demostración, sin validación psicométrica. No mide ni diagnostica burnout ni sustituye la evaluación profesional.</span></div><div className="result-buttons"><button className="button button-primary" onClick={() => navigate("profesionales")}>Conocer profesionales <ArrowRight size={17}/></button><button className="button button-outline" onClick={() => navigate("planes")}>Ver planes y precios</button><button className="button button-ghost" onClick={resetQuiz}>Repetir ejercicio</button></div></div>}
           </div>
           <aside className="quiz-aside"><div className="quiz-student-image"><img src="/images/estudiantes.avif?v=2" alt="Estudiante ficticio tomándose una pausa, imagen generada con IA" loading="lazy"/><span>Escena ilustrativa · IA</span></div><span className="aside-illustration"><MoonStar size={36}/></span><h3>Un momento solo para ti.</h3><p>Tómate tu tiempo. Tus respuestas no se envían a ningún servidor ni se guardan en tu perfil.</p><div className="aside-divider"/><div className="aside-item"><LockKeyhole size={18}/> Sin crear una cuenta</div><div className="aside-item"><Clock3 size={18}/> Aproximadamente 2 minutos</div><div className="aside-item"><Heart size={18}/> Sin juicios ni etiquetas</div></aside>
         </div>
@@ -493,7 +491,7 @@ export default function Home() {
           </div>
           <div className="profile-detail-grid">
             <div><h3>Sobre este enfoque</h3><p>{expandedProfile.bio}</p><p className="profile-education"><GraduationCap size={17}/>{expandedProfile.education}</p></div>
-            <div><h3>Áreas de acompañamiento</h3><div className="profile-detail-tags">{expandedProfile.approaches.map((topic) => <span key={topic}><Check size={14}/>{topic}</span>)}</div><p className="profile-meta"><Video size={17}/> Teleconsulta simulada · 50 min · {formatCOP(appointmentPrices.virtual)}</p><p className="profile-meta"><MapPin size={17}/> Presencial en Bucaramanga: modalidad futura, sin consultorio habilitado</p></div>
+            <div><h3>Áreas de acompañamiento</h3><div className="profile-detail-tags">{expandedProfile.approaches.map((topic) => <span key={topic}><Check size={14}/>{topic}</span>)}</div><p className="profile-meta"><Video size={17}/> Teleconsulta simulada · 50 min · {formatCOP(appointmentPrices.virtual)}</p><p className="profile-meta"><CheckCircle2 size={17}/> Modelo de atención exclusivo por videollamada, representado aquí como simulación</p></div>
           </div>
           <div className="profile-detail-bottom"><span><Info size={16}/> Ficha, formación y experiencia inventadas. No representan profesionales reales.</span><button className="button button-primary" onClick={() => chooseSpecialist(expandedProfile.id)}>Reservar cita de prueba <ArrowRight size={17}/></button></div>
         </section>}
@@ -501,10 +499,10 @@ export default function Home() {
           <div className="booking-intro">
             <div className="eyebrow">AGENDA DE DEMOSTRACIÓN</div>
             <h2>Un primer paso, <em>cuando tú decidas.</em></h2>
-            <p>Simula el proceso de reserva: elige modalidad, fecha y hora, revisa el valor y confirma. No se ofrece atención, no hay disponibilidad real y no debes ingresar información personal.</p>
+            <p>Simula una reserva de teleconsulta: elige fecha y hora, revisa el valor y confirma. No se ofrece atención real, no hay agenda conectada y no debes ingresar información personal.</p>
             <div className="booking-person"><span className={"mini-avatar " + specialist.color}>{specialist.initials}</span><div><strong>{specialist.name}</strong><small>{specialist.role} · Perfil ficticio</small></div></div>
-            <div className="booking-steps"><span className="step-pill"><CheckCircle2 size={16}/> Profesional</span><span className="step-pill">2. Modalidad y hora</span><span className="step-pill">3. Confirmación demo</span></div>
-            <div className="booking-soft-warning"><Info size={18}/><span>Los horarios son ilustrativos, sin verificación de agenda. La modalidad presencial está prevista para una etapa futura.</span></div>
+            <div className="booking-steps"><span className="step-pill"><CheckCircle2 size={16}/> Profesional</span><span className="step-pill">2. Día y hora</span><span className="step-pill">3. Confirmación demo</span></div>
+            <div className="booking-soft-warning"><Info size={18}/><span>Solo teleconsultas de ejemplo. Los horarios son ilustrativos y no representan disponibilidad real.</span></div>
           </div>
           <div className="booking-form">
             <label htmlFor="booking-patient">Personaje de paciente para esta demo</label>
@@ -513,20 +511,12 @@ export default function Home() {
             </select>
             <label htmlFor="professional">Profesional de ejemplo</label>
             <select id="professional" value={selectedId} onChange={(event) => {setSelectedId(Number(event.target.value)); setBookingHour(""); setBookedNotice(false);}}>{specialists.map((person) => <option key={person.id} value={person.id}>{person.name} — {person.role}</option>)}</select>
-            <fieldset className="modality-picker">
-              <legend>¿Cómo prefieres tu sesión?</legend>
-              <div className="modality-options">
-                <label className={mode === "virtual" ? "modality-option chosen" : "modality-option"}>
-                  <input type="radio" name="appointment-mode" value="virtual" checked={mode === "virtual"} onChange={() => {setMode("virtual"); setBookedNotice(false);}}/>
-                  <span className="modality-option-body"><Video size={20}/><strong>Teleconsulta</strong><small>En línea · 50 minutos</small><b>{formatCOP(appointmentPrices.virtual)}</b></span>
-                </label>
-                <label className={mode === "presencial" ? "modality-option chosen" : "modality-option"}>
-                  <input type="radio" name="appointment-mode" value="presencial" checked={mode === "presencial"} onChange={() => {setMode("presencial"); setBookedNotice(false);}}/>
-                  <span className="modality-option-body"><MapPin size={20}/><strong>Presencial</strong><small>Bucaramanga · futura · 50 minutos</small><b>{formatCOP(appointmentPrices.presencial)}</b></span>
-                </label>
-              </div>
-            </fieldset>
-            <div className="modality-disclaimer"><Info size={16}/><span>{mode === "virtual" ? "Teleconsulta solo como simulación; no se genera videollamada ni se asigna un profesional real." : "Atención presencial propuesta para una etapa futura. No existe sede clínica, dirección o agenda presencial disponible."}</span></div>
+            <div className="teleconsultation-only" aria-label="Modalidad única: teleconsulta">
+              <span className="teleconsultation-icon"><Video size={24} aria-hidden="true"/></span>
+              <div><strong>Teleconsulta</strong><span>Modalidad única · En línea · 50 minutos</span></div>
+              <b>{formatCOP(appointmentPrices.virtual)}</b>
+            </div>
+            <div className="modality-disclaimer"><Info size={16}/><span>Esta reserva es una simulación. No se genera videollamada ni se asigna un profesional real.</span></div>
             <label htmlFor="date">Elige un día (simulado)</label>
             <input id="date" type="date" value={bookingDate} min={localDateISO()} aria-describedby="booking-date-description" onChange={(event) => {setBookingDate(event.target.value); setBookingHour(""); setBookedNotice(false);}}/>
             <p id="booking-date-description" className="booking-date-hint" role="status">{bookingDate ? isDateValid ? "Fecha seleccionada: " + readableDate(bookingDate) : "Elige una fecha válida a partir de hoy." : "El calendario puede mostrar el formato de tu navegador; aquí verás la fecha escrita en español."}</p>
@@ -536,7 +526,7 @@ export default function Home() {
             </select>
             <p id="hour-guidance" className="booking-hour-help" role="status">{!isDateValid ? "Selecciona primero un día válido." : occupiedSlots.length > 0 ? occupiedSlots.length + " horario(s) reservado(s) en esta agenda ficticia. Elige uno disponible." : "Los horarios son ilustrativos, sin disponibilidad clínica real."}</p>
             <div className="booking-summary">
-              <div><span>Sesión {mode === "virtual" ? "virtual" : "presencial"} · 50 minutos</span><strong>{formatCOP(appointmentPrices[mode])}</strong></div>
+              <div><span>Teleconsulta · 50 minutos</span><strong>{formatCOP(appointmentPrices.virtual)}</strong></div>
               <small>{isBookingReady ? readableDate(bookingDate) + " · " + bookingHour + " · " + specialist.name : "Selecciona fecha y horario para completar el resumen."}</small>
               <small>Precio ilustrativo en COP. No se cobra ni se confirma ninguna atención real.</small>
             </div>
@@ -557,7 +547,7 @@ export default function Home() {
       {view === "planes" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">PLANES PENSADOS PARA CADA NECESIDAD</div><h1>Elige cómo empezar <em>a cuidarte.</em></h1><p>Precios ilustrativos en pesos colombianos para validar el modelo de negocio. Sin transacciones ni cobros reales.</p></div>
         <div className="plan-grid">
-          <article className="plan-card"><div className="plan-kicker">A TU RITMO</div><h3>Sesión individual</h3><p>Para quienes prefieren explorar el acompañamiento sin compromisos mensuales.</p><div className="price">$95.000 <small>COP / teleconsulta de 50 min · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Presencial proyectada: $120.000 COP</div><div className="plan-item"><Check size={17}/> Reserva y pago simulados</div><div className="plan-item"><Check size={17}/> Selección de profesional</div><div className="plan-item"><Check size={17}/> Recursos de bienestar</div><button className="button button-outline button-full" onClick={() => choosePlan("Sesión individual")}>Seleccionar plan demo <ArrowRight size={16}/></button></article>
+          <article className="plan-card"><div className="plan-kicker">A TU RITMO</div><h3>Sesión individual</h3><p>Para quienes prefieren explorar el acompañamiento sin compromisos mensuales.</p><div className="price">$95.000 <small>COP / teleconsulta de 50 min · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Atención propuesta exclusivamente por teleconsulta</div><div className="plan-item"><Check size={17}/> Reserva y pago simulados</div><div className="plan-item"><Check size={17}/> Selección de profesional</div><div className="plan-item"><Check size={17}/> Recursos de bienestar</div><button className="button button-outline button-full" onClick={() => choosePlan("Sesión individual")}>Seleccionar plan demo <ArrowRight size={16}/></button></article>
           <article className="plan-card featured"><div className="recommended-label">MÁS COMPLETO · DEMO</div><div className="plan-kicker">ACOMPAÑAMIENTO CONSTANTE</div><h3>Equilibrio mensual</h3><p>Una propuesta de apoyo sostenido y hábitos saludables para el día a día.</p><div className="price">$279.000 <small>COP / mes · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Tres sesiones simuladas al mes</div><div className="plan-item"><Check size={17}/> Biblioteca de autocuidado</div><div className="plan-item"><Check size={17}/> Seguimiento orientativo</div><button className="button button-primary button-full" onClick={() => choosePlan("Equilibrio mensual")}>Seleccionar plan demo <ArrowRight size={16}/></button></article>
           <article className="plan-card"><div className="plan-kicker">BIENESTAR COLECTIVO</div><h3>Empresas</h3><p>Un modelo flexible para programas de bienestar y cultura organizacional.</p><div className="price price-custom">A medida <small>Propuesta comercial · demo</small></div><div className="plan-divider"/><div className="plan-item"><Check size={17}/> Talleres psicoeducativos</div><div className="plan-item"><Check size={17}/> Recursos para trabajadores</div><div className="plan-item"><Check size={17}/> Panel de indicadores agregados</div><button className="button button-outline button-full" onClick={() => navigate("empresas")}>Explorar empresas <ArrowRight size={16}/></button></article>
         </div><DemoNote />
@@ -583,7 +573,7 @@ export default function Home() {
             {booking ? <>
               <div className="appointment-item">
                 <span className="appointment-icon"><CalendarCheck2 size={25}/></span>
-                <div><strong>{booking.name}</strong><span>{booking.role}</span><small>{readableDate(booking.date)} · {booking.hour}</small><small>{booking.mode === "presencial" ? "Presencial futura (simulación)" : "Teleconsulta (simulación)"} · 50 minutos</small><small>Precio ilustrativo: {formatCOP(booking.price ?? appointmentPrices[booking.mode ?? "virtual"])}</small></div>
+                <div><strong>{booking.name}</strong><span>{booking.role}</span><small>{readableDate(booking.date)} · {booking.hour}</small><small>Teleconsulta (simulación) · 50 minutos</small><small>Precio ilustrativo: {formatCOP(booking.price ?? appointmentPrices.virtual)}</small></div>
               </div>
               <p className="muted-text">Esta reserva es ficticia y solo existe en este navegador. No hay cita médica, videollamada, consultorio ni pago real.</p>
               <div className="appointment-actions">
