@@ -18,6 +18,7 @@
 | `npm run test:e2e` | ✅ 59/59 | Chromium 1255 (Playwright 1.65.1) |
 | **Total automatizado** | **62/62** | 0 fallidas, 0 omitidas |
 | Capturas responsive | ✅ 21/21 | 7 vistas × 3 anchos (375, 768, 1440 px) |
+| GitHub Actions (`QA v0.6`) | ✅ 3/3 jobs | TypeScript/unitarias, build y Playwright en Ubuntu |
 | Producción | ✅ HTTP 200 | Comprobación HEAD; no se publicó ningún cambio |
 
 **Conclusión:** la versión auditada compila, pasa TypeScript y supera la suite automatizada en Chromium. Quedan validaciones manuales que no pueden certificarse con estas pruebas (dispositivos reales, lectores de pantalla, contraste WCAG completo y revisión estética humana).
@@ -43,6 +44,18 @@ npm run test:e2e
 ```
 
 Reportes generados (ignorados por Git): `playwright-report/` (HTML) y `test-results/results.json` (JSON).
+
+### Integración continua
+
+El flujo `.github/workflows/qa.yml` se ejecuta en cada `pull_request` hacia `main` y en cada `push` a `main`, además de permitir ejecución manual. Usa `ubuntu-latest`, Node.js 24 y `npm ci` para reproducir el lockfile:
+
+| Job | Contenido |
+|---|---|
+| TypeScript y unitarias | `npm run typecheck` y `npm run test:unit` |
+| Build de producción | `npm run build` |
+| Playwright (Chromium) | Instala Chromium con dependencias del sistema y ejecuta `npm run test:e2e`; publica `playwright-report/` y `test-results/` como artefacto durante 7 días |
+
+La primera ejecución en Linux detectó una fragilidad real de la suite: la prueba del enlace **Saltar al contenido** leía `top` con `getComputedStyle` mientras la transición aún estaba en curso (`-9.87 px`). Se sustituyó por `toHaveCSS("top", "0px")` con reintento y una comprobación de viewport. La ejecución posterior terminó con los tres jobs en verde.
 
 ---
 
@@ -94,6 +107,7 @@ Reportes generados (ignorados por Git): `playwright-report/` (HTML) y `test-resu
 | BUILD-01 | Informativa | Turbopack infería como raíz `C:\Users\Isabel` por un `package-lock.json` externo al repositorio, generando advertencias en build y `next start`. | Se agregó `next.config.ts` con `turbopack.root` y `outputFileTracingRoot` apuntando al proyecto. | `npm run build` termina sin advertencias. |
 | QA-01 | Interna de la suite | El lector de IndexedDB podía ejecutarse antes de que la app creara la base y, al abrirla con versión, dejaba una base vacía sin almacenes. | `readDb` ahora espera a que `indexedDB.databases()` exponga la base y comprueba que existan los cinco almacenes antes de leer. No crea la base. | Toda la suite de persistencia y reservas. |
 | QA-02 | Interna de la suite | Las capturas full-page no cargaban imágenes `loading="lazy"` fuera del viewport y podían quedar en blanco. | La preparación de capturas recorre la página, fuerza carga y espera cada imagen con límite de 3 s. | 21 capturas generadas y revisadas. |
+| QA-03 | Interna de la suite | En Linux CI, la prueba del enlace de salto leía `top` a mitad de la transición y fallaba de forma intermitente. | Se usa `toHaveCSS` con reintento y `toBeInViewport` en lugar de leer el estilo una sola vez. | 21/21 en tres repeticiones locales y job de Playwright en verde. |
 
 Durante la construcción de la suite hubo fallos transitorios de selectores ambiguos y de sincronización con el reloj simulado. Se corrigieron en las pruebas; **no eran defectos de la aplicación**. La ejecución final no tiene fallos.
 
@@ -154,6 +168,7 @@ Estas pruebas **no se ejecutaron** y no deben considerarse aprobadas:
 **Pruebas y documentación**
 
 - `playwright.config.ts` — configuración Chromium, servidor de producción y reportes (nuevo).
+- `.github/workflows/qa.yml` — CI con TypeScript, unitarias, build y Playwright (nuevo).
 - `e2e/helpers.ts` + 11 archivos `e2e/*.spec.ts` — 59 pruebas (nuevos).
 - `tests/unit/demo-data.test.ts` — 3 pruebas unitarias (nuevo).
 - `docs/QA_V06_RESULTADOS.md` — este informe (nuevo).

@@ -79,7 +79,7 @@
 
 ## Automatización incorporada — QA v0.6
 
-La suite de Playwright ejecuta el build de producción en Chromium y usa un contexto aislado por caso. Resultado final del 19 de noviembre de 2026: **59/59 pruebas E2E y 3/3 unitarias aprobadas**, con `npm run typecheck` y `npm run build` correctos.
+La suite de Playwright ejecuta el build de producción en Chromium y usa un contexto aislado por caso. Resultado final del 19 de noviembre de 2026: **59/59 pruebas E2E y 3/3 unitarias aprobadas**, con `npm run typecheck` y `npm run build` correctos. GitHub Actions (`.github/workflows/qa.yml`) repite estas verificaciones en cada pull request hacia `main`.
 
 | Cobertura automatizada | Archivo |
 |---|---|

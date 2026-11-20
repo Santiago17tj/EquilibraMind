@@ -95,6 +95,8 @@ npm run test:e2e    # 59 pruebas E2E en Chromium
 
 Cobertura: navegación y menús, cuestionario, recorridos guiados, retratos, reservas (horarios ocupados, reprogramación y cancelación), persistencia en IndexedDB, coherencia entre roles, restablecimiento, respiración, accesibilidad básica y capturas responsive a 375, 768 y 1440 px. Cada prueba usa un contexto de navegador aislado y no comparte IndexedDB con las demás.
 
+GitHub Actions (`.github/workflows/qa.yml`) ejecuta TypeScript, las pruebas unitarias, el build y Playwright en cada pull request hacia `main`. El reporte de Playwright queda como artefacto de la ejecución.
+
 Las capturas quedan en `docs/capturas/`; el reporte HTML en `playwright-report/` y el JSON en `test-results/`. El informe completo está en [docs/QA_V06_RESULTADOS.md](docs/QA_V06_RESULTADOS.md).
 
 ## Desplegar en Netlify
