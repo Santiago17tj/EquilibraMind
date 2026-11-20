@@ -33,7 +33,10 @@ test.describe("Accesibilidad básica", () => {
 
     const skip = page.getByRole("link", { name: "Saltar al contenido principal" });
     await expect(skip).toBeFocused();
-    expect(await skip.evaluate((element) => window.getComputedStyle(element).top)).toBe("0px");
+    // El enlace se desliza con una transición: espera a que termine en vez de
+    // leer el estilo a mitad de la animación.
+    await expect(skip).toHaveCSS("top", "0px");
+    await expect(skip).toBeInViewport();
 
     await page.keyboard.press("Enter");
     await expect(page.locator("main#contenido")).toBeFocused();
