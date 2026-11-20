@@ -5,6 +5,7 @@ import { RoleDashboard } from "./components/RoleDashboard";
 import { BreathingExercise } from "./components/BreathingExercise";
 import { GuidedExperience, demoFlows, type GuideAudience } from "./components/GuidedExperience";
 import { DemoDiagnostics } from "./components/DemoDiagnostics";
+import { CompanyJourney } from "./components/CompanyJourney";
 import {
   specialists, loadDemoSnapshot, findActiveBooking, saveDemoBooking,
   cancelDemoBooking, resetDemoDatabase, setDemoSetting,
@@ -55,7 +56,7 @@ const readableDate = (value: string) => {
 };
 
 function Logo({ onClick }: { onClick: () => void }) {
-  return <button type="button" className="brand" onClick={onClick} aria-label="Volver al inicio">
+  return <button type="button" className="brand" onClick={onClick} aria-label="equilibramind. Volver al inicio">
     <span className="brand-mark"><BrainCircuit size={24} strokeWidth={1.8} /></span>
     <span>equilibra<span className="brand-strong">mind</span><span className="brand-dot">.</span></span>
   </button>;
@@ -526,7 +527,8 @@ export default function Home() {
             </fieldset>
             <div className="modality-disclaimer"><Info size={16}/><span>{mode === "virtual" ? "Teleconsulta solo como simulación; no se genera videollamada ni se asigna un profesional real." : "Atención presencial propuesta para una etapa futura. No existe sede clínica, dirección o agenda presencial disponible."}</span></div>
             <label htmlFor="date">Elige un día (simulado)</label>
-            <input id="date" type="date" value={bookingDate} min={localDateISO()} onChange={(event) => {setBookingDate(event.target.value); setBookingHour(""); setBookedNotice(false);}}/>
+            <input id="date" type="date" value={bookingDate} min={localDateISO()} aria-describedby="booking-date-description" onChange={(event) => {setBookingDate(event.target.value); setBookingHour(""); setBookedNotice(false);}}/>
+            <p id="booking-date-description" className="booking-date-hint" role="status">{bookingDate ? isDateValid ? "Fecha seleccionada: " + readableDate(bookingDate) : "Elige una fecha válida a partir de hoy." : "El calendario puede mostrar el formato de tu navegador; aquí verás la fecha escrita en español."}</p>
             <label htmlFor="hour">Horario de ejemplo</label>
             <select id="hour" value={bookingHour} onChange={(event) => {setBookingHour(event.target.value); setBookedNotice(false);}} aria-describedby="hour-guidance" disabled={!isDateValid}>
               <option value="">Selecciona una hora</option>{slotOptions.map((slot) => <option key={slot} value={slot} disabled={occupiedSlots.includes(slot)}>{slot}{occupiedSlots.includes(slot) ? " · Ocupado en la demo" : ""}</option>)}
@@ -546,6 +548,7 @@ export default function Home() {
       {view === "empresas" && <section className="inner-section section-width">
         <div className="subpage-head"><div className="eyebrow">EQUILIBRAMIND PARA EMPRESAS</div><h1>El bienestar de tu equipo <em>también es parte del éxito.</em></h1><p>Una propuesta para promover la prevención del agotamiento laboral, la escucha y una cultura de cuidado dentro de las organizaciones.</p><div className="company-primary-actions"><button className="button button-primary" aria-expanded={companyPreview} aria-controls="company-dashboard" onClick={() => setCompanyPreview(!companyPreview)}>{companyPreview ? "Ocultar panel" : "Explorar panel de empresa"} <BarChart3 size={17}/></button><button className="button button-outline" onClick={() => startGuide("empresas")}><PlayCircle size={17}/> Presentar propuesta B2B</button></div></div>
         <div className="company-benefits"><div><UsersRound size={27}/><h3>Cultura de cuidado</h3><p>Recursos de psicoeducación para conversaciones más saludables.</p></div><div><Activity size={27}/><h3>Bienestar colectivo</h3><p>Indicadores de ejemplo para identificar tendencias de participación.</p></div><div><ShieldCheck size={27}/><h3>Privacidad por diseño</h3><p>Un enfoque de reportes agregados, sin respuestas clínicas individuales.</p></div></div>
+        <CompanyJourney />
         {companyPreview ? <div className="dashboard-preview" id="company-dashboard"><div className="dashboard-header"><div><div className="eyebrow">PANEL EMPRESARIAL · SIMULACIÓN</div><h2>Resumen de bienestar</h2><span>Empresa ficticia: Horizonte Creativo S. A. S.</span></div><span className="demo-tag">DATOS SIMULADOS</span></div><div className="metric-grid"><div><span>Participación</span><strong>78%</strong><small>De colaboradores ficticios</small></div><div><span>Recursos explorados</span><strong>246</strong><small>Interacciones de ejemplo</small></div><div><span>Satisfacción estimada</span><strong>4,7/5</strong><small>Valor ficticio</small></div></div><div className="bar-visual"><h3>Interés por recursos de bienestar · Datos ficticios</h3>{[{l:"Gestión del estrés",w:83},{l:"Descanso y desconexión",w:65},{l:"Organización del tiempo",w:48}].map((item) => <div className="bar-item" key={item.l}><span>{item.l}</span><div><i style={{ width: String(item.w) + "%" }}/></div></div>)}</div><p className="dashboard-disclaimer"><Info size={16}/> Los indicadores no provienen de personas reales; ilustran un modelo de negocio potencial.</p></div> : <div className="company-callout"><span><BarChart3 size={40}/></span><div><h2>Una mirada humana a los datos.</h2><p>Abre el panel de demostración y descubre cómo podrían visualizarse indicadores agregados de un programa de bienestar.</p></div><button className="button button-dark" onClick={() => setCompanyPreview(true)}>Ver demostración <ArrowRight size={17}/></button></div>}
         <div className="company-bottom"><h2>Una propuesta a la medida <em>de cada equipo.</em></h2><p>Explora nuestro modelo corporativo ficticio y cómo podría evolucionar a un servicio contratado por organización.</p><button className="button button-outline" onClick={() => navigate("planes")}>Conocer planes <ArrowRight size={17}/></button></div>
       </section>}
@@ -593,6 +596,15 @@ export default function Home() {
             </>}
           </div>
           {selectedPlan && <div className="space-card"><div className="space-title"><h3><CheckCircle2 size={21}/> Plan de ejemplo</h3><span>NO CONTRATADO</span></div><p>Seleccionaste <strong>{selectedPlan}</strong> para explorar el modelo comercial. No se ha realizado ningún pago ni suscripción.</p></div>}
+          <section className="space-card space-ritual" aria-labelledby="space-ritual-title">
+            <div className="space-title"><h3 id="space-ritual-title"><Leaf size={20}/> Pequeños pasos para hoy</h3><span>OPCIONAL</span></div>
+            <p>No necesitas hacerlo todo: estas son tres ideas generales para dedicarte un momento.</p>
+            <ol className="space-ritual-list">
+              <li><span aria-hidden="true">01</span><div><strong>Escúchate</strong><small>Reconoce cómo te sientes sin calificar tu experiencia.</small></div></li>
+              <li><span aria-hidden="true">02</span><div><strong>Haz una pausa</strong><small>Encuentra un momento breve de calma, a tu propio ritmo.</small></div></li>
+              <li><span aria-hidden="true">03</span><div><strong>Elige el siguiente paso</strong><small>Explora recursos de bienestar cuando te resulte útil.</small></div></li>
+            </ol>
+          </section>
         </div><aside className="space-side"><div className="space-card"><h3>Tu pausa de hoy <Leaf size={19}/></h3><p>¿Has respirado profundo hoy? Prueba inhalar suavemente, exhalar sin prisa y reconocer cómo te sientes.</p><BreathingExercise compact /></div><div className="space-card"><h3>Continúa explorando</h3><button className="shortcut" onClick={() => { resetQuiz(); navigate("chequeo"); }}><ClipboardCheck size={20}/> Chequeo orientativo <ArrowRight size={16}/></button><button className="shortcut" onClick={() => navigate("planes")}><HeartHandshake size={20}/> Planes de ejemplo <ArrowRight size={16}/></button></div></aside></div>
       </section>}
     </main>

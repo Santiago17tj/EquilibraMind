@@ -4,6 +4,19 @@
 
 Prototipo académico y demostración de negocio de una plataforma de bienestar psicológico, psicoeducación y prevención del agotamiento laboral (*burnout*). Inspirado en el trabajo de Psicología Organizacional de la UDI (2026).
 
+## En revisión: versión 0.7 — diseño adaptable y propuesta B2B
+
+El desarrollo v0.7 se prepara en una rama separada (`feat/v0.7`) y **no está publicado en producción mientras el PR esté pendiente**. Incluye:
+
+- Ajuste del cuestionario en pantallas grandes: se elimina su altura mínima rígida para evitar espacios internos innecesarios.
+- Diseño de las tarjetas a tamaño tableta: el tercer perfil se presenta horizontalmente a todo el ancho; las estadísticas de la vista por rol dejan de quedar aisladas a la izquierda.
+- Equilibrio de «Mi espacio»: una nueva tarjeta de ideas educativas opcionales, sin registrar hábitos ni datos clínicos.
+- Nueva sección empresarial de tres etapas que explica el modelo propuesto y diferencia claramente simulación y servicio real.
+- Etiqueta de fecha en español bajo el selector nativo, independientemente del formato que presente el navegador.
+- Cuatro pruebas E2E adicionales en `e2e/polish-v07.spec.ts`.
+
+Para revisarlo, consultar [docs/REVISIÓN_V07.md](docs/REVISIÓN_V07.md). La versión principal y las pruebas de v0.6 se mantienen sin cambios hasta aprobar el PR.
+
 ## Estado: versión 0.6 — calidad, retratos diferenciados y reserva más intuitiva
 
 Proyecto web funcional de demostración, con diseño **wellbeing premium** (verde salvia, marfil, grafito) y contenido en español.
