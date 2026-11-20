@@ -1503,7 +1503,8 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
 
 @media (prefers-reduced-motion: no-preference) {
   .company-journey-steps > li {
-    animation: intro-content-enter 560ms cubic-bezier(.2,.8,.25,1) both;
+    /* backwards: no retener transform después de la entrada; hover funciona */
+    animation: intro-content-enter 560ms cubic-bezier(.2,.8,.25,1) backwards;
   }
   .company-journey-steps > li:nth-child(2) { animation-delay: 90ms; }
   .company-journey-steps > li:nth-child(3) { animation-delay: 180ms; }
@@ -1517,7 +1518,8 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
   .welcome-intro-eyebrow { font-size: 9px; letter-spacing: .14em; }
   .welcome-intro-title { font-size: clamp(37px, 11vw, 52px); }
   .welcome-intro-message { font-size: 20px; }
-  .welcome-intro-skip { right: 16px; bottom: max(16px, env(safe-area-inset-bottom, 0px) + 12px); }
+  /* Sobre la navegación fija de móvil, sin interceptar su último botón. */
+  .welcome-intro-skip { right: 16px; bottom: max(100px, env(safe-area-inset-bottom, 0px) + 96px); }
 }
 @media (prefers-reduced-motion: reduce) {
   .welcome-intro { display: none !important; }

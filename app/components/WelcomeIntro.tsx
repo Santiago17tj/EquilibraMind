@@ -36,6 +36,15 @@ export function WelcomeIntro() {
     }, EXIT_MS);
   }, [schedule]);
 
+  // Al intentar navegar, la escena desaparece de inmediato, sin ocultar el menú.
+  const hideImmediately = useCallback(() => {
+    if (phaseRef.current === "hidden") return;
+    phaseRef.current = "hidden";
+    for (const timer of timers.current) window.clearTimeout(timer);
+    timers.current = [];
+    setPhase("hidden");
+  }, []);
+
   useEffect(() => {
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
     let alreadySeen = false;
@@ -51,23 +60,31 @@ export function WelcomeIntro() {
     setPhase("visible");
     schedule(dismiss, SHOW_MS);
 
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") dismiss();
+    const onKeyboardInteraction = (event: KeyboardEvent) => {
+      if (["Escape", "Tab", "Enter", " "].includes(event.key)) hideImmediately();
+    };
+    const onPointerInteraction = (event: PointerEvent) => {
+      // El botón propio conserva su click; cualquier otra interacción
+      // descarta inmediatamente el overlay antes de navegar.
+      if (event.target instanceof Element && event.target.closest(".welcome-intro-skip")) return;
+      hideImmediately();
     };
     const onReduceMotion = (event: MediaQueryListEvent) => {
-      if (event.matches) dismiss();
+      if (event.matches) hideImmediately();
     };
 
-    window.addEventListener("keydown", onEscape);
+    window.addEventListener("keydown", onKeyboardInteraction);
+    window.addEventListener("pointerdown", onPointerInteraction, true);
     motion.addEventListener("change", onReduceMotion);
 
     return () => {
-      window.removeEventListener("keydown", onEscape);
+      window.removeEventListener("keydown", onKeyboardInteraction);
+      window.removeEventListener("pointerdown", onPointerInteraction, true);
       motion.removeEventListener("change", onReduceMotion);
       for (const timer of timers.current) window.clearTimeout(timer);
       timers.current = [];
     };
-  }, [dismiss, schedule]);
+  }, [dismiss, hideImmediately, schedule]);
 
   if (phase === "hidden") return null;
 
@@ -92,7 +109,7 @@ export function WelcomeIntro() {
         <p className="welcome-intro-message">A veces, todo empieza con una pausa.</p>
         <p className="welcome-intro-disclaimer">Experiencia académica de bienestar · Simulación</p>
       </div>
-      <button type="button" className="welcome-intro-skip" onClick={dismiss}>
+      <button type="button" className="welcome-intro-skip" onClick={hideImmediately}>
         Entrar ahora <ArrowRight size={16} aria-hidden="true"/>
       </button>
     </section>

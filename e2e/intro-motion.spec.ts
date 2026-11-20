@@ -57,6 +57,7 @@ test.describe("Bienvenida animada v0.7.1", () => {
     await page.goto("/");
     await expect(intro(page)).toBeVisible();
     await page.getByRole("button", { name: "Abrir menú" }).click();
+    await expect(intro(page)).toHaveCount(0);
     await expect(page.getByRole("navigation", { name: "Navegación principal" })).toBeVisible();
     const dimensions = await page.evaluate(() => ({
       viewport: window.innerWidth,
@@ -64,4 +65,17 @@ test.describe("Bienvenida animada v0.7.1", () => {
     }));
     expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.viewport + 1);
   });
+});
+
+test("las tarjetas empresariales siguen respondiendo al hover tras la entrada", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  await page.getByRole("navigation", { name: "Navegación principal" })
+    .getByRole("button", { name: "Para empresas" }).click();
+  const card = page.locator(".company-journey-steps > li").first();
+  await expect(card).toBeVisible();
+  // La entrada dura 560 ms; su transform no debe quedar fijado tras completarse.
+  await page.waitForTimeout(700);
+  await card.hover();
+  await expect(card).toHaveCSS("transform", "matrix(1, 0, 0, 1, 0, -4)");
 });
