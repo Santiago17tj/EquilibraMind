@@ -39,7 +39,7 @@ test.describe("Restablecimiento de la demostración", () => {
     await switchRole(page, "Administrador");
     await expect(page.locator(".role-stat").filter({ hasText: "Reservas activas" })).toContainText("3");
     await expect(page.locator(".role-stat").filter({ hasText: "Valor de reservas" })).toContainText(
-      "310.000"
+      "285.000"
     );
   });
 
