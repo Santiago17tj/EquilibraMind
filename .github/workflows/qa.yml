@@ -1,0 +1,89 @@
+name: QA v0.6
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qa-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NEXT_TELEMETRY_DISABLED: "1"
+
+jobs:
+  typecheck:
+    name: TypeScript y unitarias
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci --no-audit --no-fund
+      - name: TypeScript
+        run: npm run typecheck
+      - name: Pruebas unitarias
+        run: npm run test:unit
+
+  build:
+    name: Build de producción
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci --no-audit --no-fund
+      - name: Compilar Next.js
+        run: npm run build
+
+  e2e:
+    name: Playwright (Chromium)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Instalar dependencias
+        run: npm ci --no-audit --no-fund
+      - name: Cache de navegadores Playwright
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: Instalar Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Ejecutar pruebas E2E
+        run: npm run test:e2e
+      - name: Publicar reporte de Playwright
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

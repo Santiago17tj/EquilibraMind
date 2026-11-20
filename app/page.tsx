@@ -193,6 +193,8 @@ export default function Home() {
     setSelectedPlan(demoSnapshot.settings[`plan:${patientId}`] ?? null);
     setCancelNotice(false);
     setBookedNotice(false);
+    setBookingDate("");
+    setBookingHour("");
     try {
       await setDemoSetting("patientId", patientId);
       await refreshDemo();
@@ -558,6 +560,7 @@ export default function Home() {
       </section>}
 
       {view === "demo" && <section className="inner-section section-width">
+        <h1 className="sr-only">Probar roles y paneles de demostración</h1>
         <RoleDashboard snapshot={demoSnapshot} booking={booking} selectedRole={demoRole} setSelectedRole={selectDemoRole}
           currentPatientId={demoPatientId} onSelectPatient={selectDemoPatient} onReset={resetDemo}
           onViewBooking={() => navigate("espacio")} onChooseProfessional={() => navigate("profesionales")} />

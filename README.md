@@ -48,10 +48,16 @@ app/
   lib/demo-db.ts  # Esquema y operaciones locales IndexedDB
 package.json      # Dependencias y scripts
 tsconfig.json     # TypeScript
+next.config.ts    # Raíz de build para Turbopack
+playwright.config.ts  # Configuración de pruebas E2E
 netlify.toml      # Configuración de build
 public/images/   # 7 fotografías AVIF generadas con IA
+e2e/             # 59 pruebas E2E en Chromium
+tests/unit/      # Pruebas de invariantes de datos
 docs/GUIA_EXPOSICION.md  # Guion de presentación y pruebas de aceptación
 docs/PRUEBAS_V06.md  # Matriz y límites de pruebas v0.6
+docs/QA_V06_RESULTADOS.md  # Informe de la auditoría automatizada
+docs/capturas/   # Capturas responsive 375 / 768 / 1440 px
 ```
 
 ## Ejecutar en local
@@ -70,6 +76,28 @@ Comprobar compilación:
 ```bash
 npm run build
 ```
+
+## Pruebas automatizadas (QA v0.6)
+
+La suite usa Playwright con Chromium y levanta el build de producción en el puerto 3100. La primera vez:
+
+```bash
+npx playwright install chromium
+```
+
+Comandos:
+
+```bash
+npm run typecheck   # TypeScript sin emitir
+npm run test:unit   # invariantes de los datos ficticios
+npm run test:e2e    # 59 pruebas E2E en Chromium
+```
+
+Cobertura: navegación y menús, cuestionario, recorridos guiados, retratos, reservas (horarios ocupados, reprogramación y cancelación), persistencia en IndexedDB, coherencia entre roles, restablecimiento, respiración, accesibilidad básica y capturas responsive a 375, 768 y 1440 px. Cada prueba usa un contexto de navegador aislado y no comparte IndexedDB con las demás.
+
+GitHub Actions (`.github/workflows/qa.yml`) ejecuta TypeScript, las pruebas unitarias, el build y Playwright en cada pull request hacia `main`. El reporte de Playwright queda como artefacto de la ejecución.
+
+Las capturas quedan en `docs/capturas/`; el reporte HTML en `playwright-report/` y el JSON en `test-results/`. El informe completo está en [docs/QA_V06_RESULTADOS.md](docs/QA_V06_RESULTADOS.md).
 
 ## Desplegar en Netlify
 
@@ -141,4 +169,4 @@ Los indicadores de negocio y resultados de bienestar exhibidos son ficticios. No
 
 ## Control de calidad v0.6
 
-Para revisar la versión desde el propio navegador, abre **Probar roles → Verificar demo en este navegador**. La comprobación realiza lecturas de IndexedDB y carga los retratos, compara su resolución y comprueba diferencias de píxeles (no modifica citas ni planes). La matriz detallada de aceptación está en [docs/PRUEBAS_V06.md](docs/PRUEBAS_V06.md). **La compilación y las pruebas automáticas de lectura no sustituyen las pruebas manuales de clics y distribución móvil.**
+Para revisar la versión desde el propio navegador, abre **Probar roles → Verificar demo en este navegador**. La comprobación realiza lecturas de IndexedDB y carga los retratos, compara su resolución y comprueba diferencias de píxeles (no modifica citas ni planes). La matriz detallada de aceptación está en [docs/PRUEBAS_V06.md](docs/PRUEBAS_V06.md) y los resultados de la suite en [docs/QA_V06_RESULTADOS.md](docs/QA_V06_RESULTADOS.md). **La compilación y las 59 pruebas automatizadas en Chromium no sustituyen las pruebas manuales en dispositivos reales, lectores de pantalla, contraste WCAG y revisión estética.**
