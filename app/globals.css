@@ -53,7 +53,7 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
 .button-large { padding: 16px 22px; font-size: 13px; }
 .button-full { width: 100%; }
 .menu-toggle, .mobile-space-link { display: none; }
-.eyebrow { display: inline-flex; gap: 9px; align-items: center; letter-spacing: .16em; font-weight: 800; color: #6e9876; font-size: 10px; line-height: 1.5; text-transform: uppercase; }
+.eyebrow { display: inline-flex; gap: 9px; align-items: center; letter-spacing: .16em; font-weight: 800; color: #4a7054; font-size: 10px; line-height: 1.5; text-transform: uppercase; }
 .sparkle-dot { width: 6px; height: 6px; border-radius: 50%; background: #94b998; box-shadow: 0 0 0 4px #e7efe5; }
 .hero { display: grid; grid-template-columns: 1fr 1fr; min-height: 618px; align-items: center; gap: 45px; padding-top: 55px; padding-bottom: 64px; }
 .hero-content { position: relative; z-index: 2; padding-bottom: 18px; }
@@ -1157,7 +1157,7 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
 .company-journey-heading > p {
   margin: 0 auto;
   max-width: 660px;
-  color: #647969;
+  color: #5c7261;
   font-size: 13px;
   line-height: 1.85;
 }
@@ -1184,7 +1184,7 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
   margin-bottom: 23px;
 }
 .company-journey-number {
-  color: #6c9375;
+  color: #53785e;
   font: 700 12px/1 "Manrope", sans-serif;
   letter-spacing: .1em;
 }
@@ -1205,14 +1205,14 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
 }
 .company-journey-steps p {
   margin: 0;
-  color: #687c6e;
+  color: #5c7261;
   font-size: 12px;
   line-height: 1.85;
 }
 .company-journey-disclaimer {
   margin: 15px 0 0;
   text-align: center;
-  color: #788a7c;
+  color: #5f7464;
   font-size: 10px;
   line-height: 1.75;
 }
@@ -1224,7 +1224,8 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
 }
 .space-ritual { background: #f7faf5; }
 .space-ritual .space-title h3 { margin-bottom: 13px; }
-.space-ritual > p { margin: 0 0 19px; }
+.space-ritual .space-title > span { color: #4f6f58; }
+.space-ritual > p { margin: 0 0 19px; color: #5f7260; }
 .space-ritual-list {
   display: grid;
   gap: 0;
@@ -1247,18 +1248,18 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
   place-items: center;
   border-radius: 50%;
   background: #e6f0e3;
-  color: #4e795a;
+  color: #456d51;
   font: 700 11px/1 "Manrope", sans-serif;
 }
 .space-ritual-list strong { display: block; color: #3a5b44; font-size: 12px; margin-bottom: 5px; }
-.space-ritual-list small { display: block; color: #6c8170; font-size: 11px; line-height: 1.6; }
+.space-ritual-list small { display: block; color: #5c7462; font-size: 11px; line-height: 1.6; }
 
 @media (min-width: 1101px) {
   .quiz-layout { align-items: start; }
   .quiz-panel { min-height: 0; }
   .space-grid { grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr); }
 }
-@media (min-width: 571px) and (max-width: 1100px) {
+@media (min-width: 571px) and (max-width: 800px) {
   /* El tercer perfil ocupa una fila horizontal; ningún personaje queda aislado a la izquierda. */
   .specialist-grid > .specialist-card:last-child:nth-child(odd) {
     grid-column: 1 / -1;

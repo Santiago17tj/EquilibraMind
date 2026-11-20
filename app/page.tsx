@@ -56,7 +56,7 @@ const readableDate = (value: string) => {
 };
 
 function Logo({ onClick }: { onClick: () => void }) {
-  return <button type="button" className="brand" onClick={onClick} aria-label="Volver al inicio">
+  return <button type="button" className="brand" onClick={onClick} aria-label="equilibramind. Volver al inicio">
     <span className="brand-mark"><BrainCircuit size={24} strokeWidth={1.8} /></span>
     <span>equilibra<span className="brand-strong">mind</span><span className="brand-dot">.</span></span>
   </button>;
