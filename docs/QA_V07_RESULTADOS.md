@@ -23,7 +23,7 @@
 | axe-core (componentes v0.7) | ✅ 0 fallos | Tras las correcciones de contraste |
 | axe-core (global) | ⚠️ 654 nodos heredados | Todos existían ya en `main`; ver §7 |
 | Desbordamiento horizontal | ✅ 0 px | 16 anchos × 8 vistas = 128 combinaciones |
-| GitHub Actions | ⏳ Pendiente | Se ejecutará al publicar el commit de correcciones |
+| GitHub Actions | ✅ 3/3 jobs | Run [44654822055](https://github.com/Santiago17tj/EquilibraMind/actions/runs/44654822055): TypeScript/unitarias, Playwright y build |
 
 **Conclusión:** v0.7 compila, pasa TypeScript, las 3 unitarias y las 63 E2E. Se corrigieron un defecto real de breakpoint y cuatro problemas de accesibilidad introducidos o visibles en la nueva propuesta. No se detectaron regresiones funcionales ni desbordamientos. Queda deuda de contraste heredada de v0.6 que requiere una pasada de diseño específica, además de las validaciones manuales de §9.
 
@@ -235,7 +235,7 @@ No se modificaron `package.json`, `package-lock.json`, el esquema de IndexedDB, 
 ## 12. Recomendación
 
 1. Revisar el commit de correcciones y las capturas actualizadas antes de aprobar el PR.
-2. Confirmar la CI en verde al publicar la rama.
+2. CI confirmada en verde (run `44654822055`); solo queda la aprobación humana.
 3. Programar una iteración de accesibilidad para los 654 nodos heredados de contraste.
 4. Reservar M-01 a M-10 para un ensayo en dispositivos y navegadores reales.
 5. No fusionar a `main` hasta completar la revisión humana y la aprobación del PR.
