@@ -7,6 +7,7 @@ export function BreathingExercise({ compact = false }: { compact?: boolean }) {
   const [active, setActive] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const timerRef = useRef<number | null>(null);
+  const runningRef = useRef(false);
   const stopTimer = () => {
     if (timerRef.current !== null) {
       window.clearInterval(timerRef.current);
@@ -21,7 +22,7 @@ export function BreathingExercise({ compact = false }: { compact?: boolean }) {
   useEffect(() => {
     if (!active) return;
     const id = window.setInterval(() => {
-      setElapsed(current => Math.min(current + 1, duration));
+      setElapsed(current => runningRef.current ? Math.min(current + 1, duration) : current);
     }, 1000);
     timerRef.current = id;
     return () => {
@@ -30,7 +31,10 @@ export function BreathingExercise({ compact = false }: { compact?: boolean }) {
     };
   }, [active]);
   useEffect(() => {
-    if (elapsed >= duration && active) setActive(false);
+    if (elapsed >= duration && active) {
+      runningRef.current = false;
+      setActive(false);
+    }
   }, [elapsed, active]);
 
   return <section className={"breathing-widget " + (compact ? "breathing-compact" : "")} aria-label="Ejercicio guiado de respiración de 1 minuto">
@@ -53,10 +57,18 @@ export function BreathingExercise({ compact = false }: { compact?: boolean }) {
       <div className="breathing-time"><span>{String(Math.floor(elapsed / 60)).padStart(2, "0")}:{String(elapsed % 60).padStart(2, "0")}</span><span>01:00</span></div>
       <div className="breathing-buttons">
         <button type="button" className="button button-primary" onClick={() => {
-          if (complete) { stopTimer(); setElapsed(0); setActive(true); }
-          else { if (active) stopTimer(); setActive(!active); }
+          if (complete) {
+            stopTimer();
+            runningRef.current = true;
+            setElapsed(0);
+            setActive(true);
+          } else {
+            runningRef.current = !active;
+            if (active) stopTimer();
+            setActive(!active);
+          }
         }}>{complete ? <><RotateCcw size={16}/> Repetir ejercicio</> : active ? <><Pause size={16}/> Pausar</> : <><Play size={16}/> {elapsed ? "Continuar" : "Comenzar"}</>}</button>
-        {elapsed > 0 && !complete && <button type="button" className="breathing-reset" onClick={() => {stopTimer(); setActive(false); setElapsed(0);}} aria-label="Reiniciar ejercicio"><RotateCcw size={18}/></button>}
+        {elapsed > 0 && !complete && <button type="button" className="breathing-reset" onClick={() => {runningRef.current = false; stopTimer(); setActive(false); setElapsed(0);}} aria-label="Reiniciar ejercicio"><RotateCcw size={18}/></button>}
       </div>
     </div>
     <p className="breathing-disclaimer">Práctica general de relajación, no tratamiento médico. Si te resulta incómoda, detente y respira normalmente.</p>

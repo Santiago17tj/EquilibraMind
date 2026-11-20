@@ -26,8 +26,15 @@ test.describe("Ejercicio interactivo de respiración", () => {
 
     await widget.getByRole("button", { name: /Pausar/ }).click();
     await expect(widget.getByRole("button", { name: /Continuar/ })).toBeVisible();
+    // El instante exacto en que llegó el click puede variar en CI. Lo relevante
+    // es que el valor NO avance mientras el usuario dejó el ejercicio pausado.
+    const pausedProgress = await widget.getByRole("progressbar", { name: "Progreso del ejercicio" }).getAttribute("aria-valuenow");
+    const pausedTime = await widget.locator(".breathing-time span").first().textContent();
+    expect(pausedProgress).not.toBeNull();
+    expect(pausedTime).not.toBeNull();
     await page.clock.fastForward(3000);
-    await expect(widget.locator(".breathing-time")).toContainText("00:01");
+    await expect(widget.getByRole("progressbar", { name: "Progreso del ejercicio" })).toHaveAttribute("aria-valuenow", pausedProgress!);
+    await expect(widget.locator(".breathing-time span").first()).toHaveText(pausedTime!);
 
     await widget.getByRole("button", { name: "Reiniciar ejercicio" }).click();
     await expect(widget.locator(".breathing-time")).toContainText("00:00");
