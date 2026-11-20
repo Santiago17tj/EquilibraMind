@@ -5,7 +5,7 @@
  * su propia copia: NO hay servidor, sincronización ni autenticación.
  */
 export type DemoRole = "paciente" | "psicologo" | "administrador";
-export type VisitMode = "virtual" | "presencial";
+export type VisitMode = "virtual";
 
 export type DemoPatient = {
   id: string;
@@ -96,7 +96,7 @@ export const demoPlans: DemoPlan[] = [
 ];
 
 const DB_NAME = "equilibramind-academica";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const DB_STORES = ["patients", "professionals", "plans", "appointments", "settings"] as const;
 const HOURS = ["9:00 a. m.", "11:30 a. m.", "3:00 p. m.", "5:00 p. m."];
 
@@ -129,7 +129,7 @@ function seedIntoTransaction(transaction: IDBTransaction) {
     {
       id: "sample-valentina", patientId: "valentina", professionalId: 2, name: "Daniela Ríos",
       role: "Bienestar estudiantil", date: futureDay(4), hour: "3:00 p. m.",
-      mode: "presencial", price: 120000, status: "scheduled", source: "seed"
+      mode: "virtual", price: 95000, status: "scheduled", source: "seed"
     }
   ];
   for (const appointment of appointments) transaction.objectStore("appointments").put(appointment);
@@ -157,14 +157,32 @@ async function openDatabase(): Promise<IDBDatabase> {
   }
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = () => {
+    request.onupgradeneeded = (event) => {
       const db = request.result;
       for (const store of DB_STORES) {
         if (!db.objectStoreNames.contains(store)) {
           db.createObjectStore(store, { keyPath: store === "settings" ? "key" : "id" });
         }
       }
-      seedIntoTransaction(request.transaction!);
+      // Una instalación nueva recibe las citas de ejemplo únicamente virtuales.
+      // Al actualizar desde v1 no se deben resembrar ni perder cambios locales.
+      if (event.oldVersion === 0) {
+        seedIntoTransaction(request.transaction!);
+      } else if (event.oldVersion < 2) {
+        // Conserva IDs, cancelaciones, profesionales, fechas y horarios; normaliza
+        // exclusivamente modalidad y precio en las reservas ficticias anteriores.
+        const appointments = request.transaction!.objectStore("appointments");
+        const cursorRequest = appointments.openCursor();
+        cursorRequest.onsuccess = () => {
+          const cursor = cursorRequest.result;
+          if (!cursor) return;
+          const item = cursor.value as DemoAppointment;
+          if (item.mode !== "virtual" || item.price !== 95000) {
+            cursor.update({ ...item, mode: "virtual", price: 95000 });
+          }
+          cursor.continue();
+        };
+      }
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error ?? new Error("No se pudo abrir la base de datos local."));
@@ -216,8 +234,8 @@ export async function saveDemoBooking(patientId: string, input: BookingInput): P
   if (!/^\d{4}-\d{2}-\d{2}$/.test(input.date) || input.date < futureDay(0) || !HOURS.includes(input.hour)) {
     throw new Error("Selecciona una fecha y horario de demostración válidos.");
   }
-  if (input.mode !== "virtual" && input.mode !== "presencial") {
-    throw new Error("Selecciona la modalidad de demostración.");
+  if (input.mode !== "virtual") {
+    throw new Error("La demostración ofrece únicamente teleconsultas.");
   }
   const previous = findActiveBooking(snapshot, patientId);
   const occupied = snapshot.appointments.some((item) =>
@@ -230,7 +248,7 @@ export async function saveDemoBooking(patientId: string, input: BookingInput): P
     id: previous?.id ?? `demo-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     patientId, professionalId: professional.id,
     name: professional.name, role: professional.role, date: input.date, hour: input.hour,
-    mode: input.mode, price: input.mode === "virtual" ? 95000 : 120000,
+    mode: "virtual", price: 95000,
     status: "scheduled", source: "user"
   };
   const db = await openDatabase();

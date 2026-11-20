@@ -15,7 +15,7 @@ export type DbAppointment = {
   role: string;
   date: string;
   hour: string;
-  mode: "virtual" | "presencial";
+  mode: "virtual";
   price: number;
   status: "scheduled" | "cancelled";
   source: "seed" | "user";
@@ -140,7 +140,7 @@ export type BookingOptions = {
   professionalId?: number | string;
   date: string;
   hour: string;
-  mode?: "virtual" | "presencial";
+  mode?: "virtual";
 };
 
 /** Completa el formulario de reserva ficticia y confirma. */
@@ -150,9 +150,8 @@ export async function bookDemo(page: Page, options: BookingOptions): Promise<voi
   if (options.professionalId !== undefined) {
     await page.selectOption("#professional", String(options.professionalId));
   }
-  if (options.mode) {
-    await page.locator(`input[name="appointment-mode"][value="${options.mode}"]`).check();
-  }
+  // Modalidad única: no existe selector de radio ni opción presencial.
+  await expect(page.locator(".teleconsultation-only")).toContainText("Teleconsulta");
   await page.fill("#date", options.date);
   await page.selectOption("#hour", options.hour);
   await page.getByRole("button", { name: /Confirmar reserva ficticia/ }).click();

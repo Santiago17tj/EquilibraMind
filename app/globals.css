@@ -1526,3 +1526,36 @@ h2 em, h1 em { color: var(--pine); font-weight: 500; }
   .welcome-intro * { animation: none !important; transition: none !important; }
   .company-journey-steps > li { animation: none !important; }
 }
+
+
+/* v0.7.2 — Modelo de negocio exclusivo por teleconsulta */
+.teleconsultation-only {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px 18px;
+  border: 1px solid #b9d4bd;
+  background: #eff6ed;
+  border-radius: 14px;
+  color: #315b40;
+  margin: 10px 0 14px;
+}
+.teleconsultation-icon {
+  display: grid;
+  flex: 0 0 47px;
+  width: 47px;
+  height: 47px;
+  place-items: center;
+  border-radius: 13px;
+  color: #315f42;
+  background: #deecdf;
+}
+.teleconsultation-only > div { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+.teleconsultation-only strong { font-size: 14px; font-weight: 800; }
+.teleconsultation-only span:not(.teleconsultation-icon) { font-size: 11px; line-height: 1.5; color: #476e52; }
+.teleconsultation-only b { font-size: 16px; white-space: nowrap; }
+@media (max-width: 570px) {
+  .teleconsultation-only { flex-wrap: wrap; gap: 10px; padding: 15px; }
+  .teleconsultation-only > div { flex: 1 1 calc(100% - 65px); }
+  .teleconsultation-only b { margin-left: 57px; }
+}

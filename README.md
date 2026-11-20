@@ -22,6 +22,12 @@ La versión 0.7.1 se integró en `main` mediante el [PR #3](https://github.com/S
 
 Ver [docs/REVISION_MOTION_V071.md](docs/REVISION_MOTION_V071.md) para los criterios usados durante el desarrollo. Las validaciones de accesibilidad y dispositivos reales siguen siendo tareas de calidad pendientes.
 
+## Modelo de servicio — solo teleconsulta (v0.7.2)
+
+**EquilibraMind se plantea únicamente como un servicio de teleconsulta.** No hay consulta presencial, sedes, desplazamientos, ni tarifas presenciales. Todas las sesiones individuales ficticias se muestran como videollamadas de 50 minutos y $95.000 COP (precio ilustrativo).
+
+La base local `IndexedDB` se actualiza de v1 a v2 sin borrar los datos de la demostración: convierte las citas ficticias antiguas a modalidad virtual y tarifa de $95.000, conservando profesional, paciente, estado, fecha y hora. No existe conexión con profesionales, pagos o videollamadas reales.
+
 ## Estado: versión 0.6 — calidad, retratos diferenciados y reserva más intuitiva
 
 Proyecto web funcional de demostración, con diseño **wellbeing premium** (verde salvia, marfil, grafito) y contenido en español.
@@ -31,8 +37,8 @@ Proyecto web funcional de demostración, con diseño **wellbeing premium** (verd
 - **Inicio comercial responsive:** propuesta de valor y recorrido de bienvenida.
 - **Mi bienestar:** cuestionario orientativo de seis preguntas, con reflexión educativa y recomendaciones generales. **No es una prueba validada ni diagnóstico clínico.**
 - **Profesionales:** tres perfiles completamente ficticios, con filtros por estrés laboral y vida estudiantil, fichas ampliadas y retratos sintéticos claramente diferenciados. La fotografía de Daniela usa dos archivos nuevos para evitar imágenes antiguas del caché.
-- **Reservas ficticias:** flujo guiado para elegir profesional, personaje de paciente, **teleconsulta o presencial proyectada**, fecha, horario y precio. Las reservas se guardan en **IndexedDB**, se pueden modificar o cancelar y sus cambios aparecen en las vistas de paciente, psicólogo y administrador. La selección ahora marca los horarios ficticios ocupados y limpia la hora al cambiar día o profesional. Cada personaje puede tener una cita activa a la vez.
-- **Tarifas orientativas (solo demostración):** teleconsulta de 50 minutos $95.000 COP; presencial futura en Bucaramanga de 50 minutos $120.000 COP; tres teleconsultas mensuales $279.000 COP. No se realizan pagos.
+- **Reservas ficticias:** flujo guiado para elegir profesional, personaje de paciente, **teleconsulta exclusivamente**, fecha, horario y precio. Las reservas se guardan en **IndexedDB**, se pueden modificar o cancelar y sus cambios aparecen en las vistas de paciente, psicólogo y administrador. La selección ahora marca los horarios ficticios ocupados y limpia la hora al cambiar día o profesional. Cada personaje puede tener una cita activa a la vez.
+- **Tarifas orientativas (solo demostración):** teleconsulta de 50 minutos $95.000 COP; tres teleconsultas mensuales $279.000 COP. El modelo de negocio es exclusivamente virtual, sin sedes ni consultas presenciales. No se realizan pagos.
 - **Planes demostrativos:** pago por sesión, mensual y corporativo. **No hay cobros reales.**
 - **Empresas:** propuesta B2B y panel con métricas agregadas simuladas.
 - **Mi espacio:** vista personal de demostración, consulta de la reserva y ejercicios generales de respiración.
@@ -143,7 +149,7 @@ Puedes iniciar el recorrido personal en **Inicio → Descubre cómo funciona, pa
 2. Pulsar **Conoce cómo te sientes** para completar el chequeo orientativo.
 3. Ir a **Profesionales** y seleccionar un perfil ficticio.
 4. Utilizar los filtros «Estrés laboral» o «Vida estudiantil» y abrir «Ver perfil» para mostrar una ficha ampliada.
-5. Pulsar «Agendar demo» y elegir entre teleconsulta o presencial futura; revisar el precio antes de continuar.
+5. Pulsar «Agendar demo» para simular una teleconsulta, elegir día y horario y revisar su precio antes de continuar.
 6. Elegir personaje, fecha y hora de ejemplo, confirmar una reserva y comprobar el resultado.
 7. Abrir **Mi espacio** y comprobar que la reserva se conserva al recargar ese navegador.
 8. Pulsar «Cambiar cita demo», revisar que se recuperen los datos y confirmar una nueva fecha.

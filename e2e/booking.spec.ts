@@ -106,27 +106,33 @@ test.describe("Reservas ficticias", () => {
     await expect(appointment).toContainText("$ 95.000");
   });
 
-  test("crea una reserva presencial con la tarifa proyectada", async ({ page }) => {
+  test("la modalidad es exclusivamente teleconsulta, con precio único", async ({ page }) => {
     await page.goto("/");
-    const date = await futureDate(page, 41);
+    await openSection(page, "Profesionales");
+    await expect(page.locator(".teleconsultation-only")).toContainText("Teleconsulta");
+    await expect(page.locator(".teleconsultation-only")).toContainText("Modalidad única");
+    await expect(page.locator('input[name="appointment-mode"]')).toHaveCount(0);
 
+    const seeded = await readDb(page);
+    expect(seeded.appointments.every((item) => item.mode === "virtual" && item.price === 95000)).toBe(true);
+    const date = await futureDate(page, 41);
     await bookDemo(page, {
       patientId: "mateo",
       professionalId: 3,
       date,
       hour: "5:00 p. m.",
-      mode: "presencial"
+      mode: "virtual"
     });
 
-    await expect(page.locator(".booking-summary")).toContainText("$ 120.000");
+    await expect(page.locator(".booking-summary")).toContainText("$ 95.000");
     const db = await readDb(page);
     const active = db.appointments.find(
       (item) => item.patientId === "mateo" && item.status === "scheduled"
     );
     expect(active).toMatchObject({
       professionalId: 3,
-      mode: "presencial",
-      price: 120000,
+      mode: "virtual",
+      price: 95000,
       date,
       hour: "5:00 p. m."
     });
