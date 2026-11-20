@@ -18,6 +18,7 @@ export function WelcomeIntro() {
   const [phase, setPhase] = useState<Phase>("hidden");
   const timers = useRef<number[]>([]);
   const phaseRef = useRef<Phase>("hidden");
+  const shownInThisMount = useRef(false);
 
   const schedule = useCallback((callback: () => void, delay: number) => {
     const id = window.setTimeout(callback, delay);
@@ -54,7 +55,10 @@ export function WelcomeIntro() {
     } catch {
       // La página también funciona cuando el almacenamiento de sesión está bloqueado.
     }
-    if (alreadySeen || motion.matches) return;
+    // React StrictMode repite el efecto en desarrollo. Si esta misma
+    // instancia ya inició la intro, debemos reprogramar su autocierre.
+    if ((alreadySeen && !shownInThisMount.current) || motion.matches) return;
+    shownInThisMount.current = true;
 
     phaseRef.current = "visible";
     setPhase("visible");
